@@ -10,15 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let postsData = []; 
     let scrollButtonTimeout = null;
 
-    // Function to calculate reading time
     function calculateReadingTime(text) {
         const wordsPerMinute = 200; 
         const wordCount = text.split(/\s+/).length;
         const readingTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
-        return `${readingTimeMinutes} MIN READ`; // Uppercase for the new badge style
+        return `${readingTimeMinutes} MIN READ`;
     }
 
-    // Function to show scroll buttons and set autohide timer
     function showScrollButtonsWithAutohide() {
         if (scrollButtonTimeout) clearTimeout(scrollButtonTimeout);
 
@@ -35,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             scrollToBottomBtn.classList.add('hidden');
         }
 
-        // Autohide after 2 seconds
         scrollButtonTimeout = setTimeout(() => {
             scrollToTopBtn.classList.add('hidden');
             scrollToBottomBtn.classList.add('hidden');
@@ -44,14 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchAndDisplayPosts() {
         try {
-            // Note: Ensure files.json is in the same directory
             const response = await fetch('files.json');
+            if (!response.ok) throw new Error('Failed to load files.json');
             const filesJson = await response.json(); 
 
             const fetchPromises = filesJson.map(async postData => {
                 try {
                     const postContentResponse = await fetch(postData.contentFile);
-                    if (!postContentResponse.ok) throw new Error('File not found');
+                    if (!postContentResponse.ok) return null;
                     const postContent = await postContentResponse.text();
                     return {
                         id: postData.id,
@@ -60,31 +57,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         content: postContent,
                     };
                 } catch (e) {
-                    console.warn(`Could not load content for ${postData.title}`);
+                    console.warn('Skipping post due to error:', postData.title);
                     return null;
                 }
             });
 
-            // Filter out failed loads
             const results = await Promise.all(fetchPromises);
-            postsData = results.filter(p => p !== null);
-
-            // Sort posts (Oldest ID first)
-            postsData.sort((a, b) => a.id - b.id);
+            postsData = results.filter(p => p !== null).sort((a, b) => a.id - b.id);
 
             renderPosts(postsData);
             renderPostIndex(postsData);
 
         } catch (error) {
-            console.error('Error fetching or parsing posts:', error);
-            postList.innerHTML = '<div class="post-card"><p style="text-align:center">Failed to load posts. Please ensure files.json is correct.</p></div>';
+            console.error('Error:', error);
+            postList.innerHTML = '<div class="post-card"><p>Could not load posts.</p></div>';
         }
     }
 
     function renderPosts(postsToRender) {
         postList.innerHTML = ''; 
         if (postsToRender.length === 0) {
-            postList.innerHTML = '<div class="post-card"><p>No posts found.</p></div>';
+            postList.innerHTML = '<div class="post-card"><p>No posts match your search.</p></div>';
             return;
         }
 
@@ -95,15 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const readTime = calculateReadingTime(post.content);
 
-            // Using CSS classes for styling instead of inline line-breaks
             postCard.innerHTML = `
                 <h2>${post.title}</h2>
                 <span class="read-time">${readTime}</span>
-                <div class="post-content"><p>${post.content.replace(/\n/g,'<br>')}</p></div>
+                <p>${post.content.replace(/\n/g,'<br>')}</p>
                 ${post.images.length > 0 ? `
                 <div class="carousel" data-post-id="${post.id}">
-                    <img src="" alt="Blurred background" class="carousel-background-image">
-                    <img src="" alt="Post image" class="carousel-image">
+                    <img src="" alt="Background" class="carousel-background-image">
+                    <img src="" alt="Post Content" class="carousel-image">
                     <button class="carousel-button prev">&lt;</button>
                     <button class="carousel-button next">&gt;</button>
                 </div>
@@ -130,20 +122,24 @@ document.addEventListener('DOMContentLoaded', () => {
             carouselBgImage.src = images[index];
         };
 
-        prevButton.addEventListener('click', () => {
+        prevButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
             showImage(currentImageIndex);
         });
 
-        nextButton.addEventListener('click', () => {
+        nextButton.addEventListener('click', (e) => {
+            e.stopPropagation();
             currentImageIndex = (currentImageIndex + 1) % images.length;
             showImage(currentImageIndex);
         });
 
-        // Simple Swipe Detection
+        // Swipe support
         let touchStartX = 0;
-        card.querySelector('.carousel').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-        card.querySelector('.carousel').addEventListener('touchend', e => {
+        const carousel = card.querySelector('.carousel');
+        
+        carousel.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+        carousel.addEventListener('touchend', e => {
             const touchEndX = e.changedTouches[0].clientX;
             if (touchEndX < touchStartX - 50) {
                 currentImageIndex = (currentImageIndex + 1) % images.length;
@@ -170,10 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const link = document.createElement('a');
             link.href = `#post-${post.id}`;
             link.textContent = post.title;
-            // Smooth scroll on click for the index links
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                document.getElementById(`post-${post.id}`).scrollIntoView({behavior: 'smooth'});
+                const target = document.getElementById(`post-${post.id}`);
+                if (target) {
+                    target.scrollIntoView({behavior: 'smooth'});
+                }
             });
             listItem.appendChild(link);
             postIndexList.appendChild(listItem);
