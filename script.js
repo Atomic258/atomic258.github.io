@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Elements ---
     const postList = document.getElementById('post-list');
     const searchInput = document.getElementById('search-input');
     const postIndexList = document.getElementById('post-index-list');
@@ -6,10 +7,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollToTopBtn = document.getElementById('scroll-to-top');
     const fullscreenOverlay = document.getElementById('fullscreen-overlay');
     const fullscreenImage = document.getElementById('fullscreen-image');
+    const themeToggle = document.getElementById('theme-toggle');
 
     let postsData = []; 
     let scrollButtonTimeout = null;
 
+    // --- Theme Logic ---
+    function initTheme() {
+        // Check localStorage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
+            document.body.setAttribute('data-theme', 'dark');
+        } else {
+            document.body.removeAttribute('data-theme');
+        }
+    }
+
+    themeToggle.addEventListener('click', () => {
+        if (document.body.getAttribute('data-theme') === 'dark') {
+            document.body.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+
+    // Initialize theme immediately
+    initTheme();
+
+    // --- Helpers ---
     function calculateReadingTime(text) {
         const wordsPerMinute = 200; 
         const wordCount = text.split(/\s+/).length;
@@ -39,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
+    // --- Fetching ---
     async function fetchAndDisplayPosts() {
         try {
             const response = await fetch('files.json');
@@ -70,10 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-            postList.innerHTML = '<div class="post-card"><p>Could not load posts.</p></div>';
+            postList.innerHTML = '<div class="post-card"><p>Could not load posts. Ensure files.json exists.</p></div>';
         }
     }
 
+    // --- Rendering ---
     function renderPosts(postsToRender) {
         postList.innerHTML = ''; 
         if (postsToRender.length === 0) {
@@ -109,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Carousel Logic ---
     function setupCarousel(card, images) {
         const carouselImage = card.querySelector('.carousel-image');
         const carouselBgImage = card.querySelector('.carousel-background-image');
@@ -118,8 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentImageIndex = 0;
 
         const showImage = (index) => {
-            carouselImage.src = images[index];
-            carouselBgImage.src = images[index];
+            // Preload next image for smoother transitions
+            const nextIndex = (index + 1) % images.length;
+            const preloadImg = new Image();
+            preloadImg.src = images[nextIndex];
+
+            carouselImage.style.opacity = '0.8'; // subtle fade effect
+            setTimeout(() => {
+                carouselImage.src = images[index];
+                carouselBgImage.src = images[index];
+                carouselImage.style.opacity = '1';
+            }, 100);
         };
 
         prevButton.addEventListener('click', (e) => {
@@ -156,7 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
             fullscreenOverlay.classList.remove('hidden');
         });
 
-        showImage(0);
+        // Initial load
+        carouselImage.src = images[0];
+        carouselBgImage.src = images[0];
     }
 
     function renderPostIndex(posts) {
