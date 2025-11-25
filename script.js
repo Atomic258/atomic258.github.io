@@ -7,206 +7,198 @@ document.addEventListener('DOMContentLoaded', () => {
     const fullscreenOverlay = document.getElementById('fullscreen-overlay');
     const fullscreenImage = document.getElementById('fullscreen-image');
 
-    let postsData = []; // This will store the parsed data from files.json
+    let postsData = []; 
     let scrollButtonTimeout = null;
 
     // Function to calculate reading time
     function calculateReadingTime(text) {
-    const wordsPerMinute = 200; // Average reading speed
-    const wordCount = text.split(/\s+/).length;
-    const readingTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
-    return `${readingTimeMinutes} min read`;
+        const wordsPerMinute = 200; 
+        const wordCount = text.split(/\s+/).length;
+        const readingTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
+        return `${readingTimeMinutes} MIN READ`; // Uppercase for the new badge style
     }
 
     // Function to show scroll buttons and set autohide timer
     function showScrollButtonsWithAutohide() {
-    // Clear existing timeout
-    if (scrollButtonTimeout) {
-    clearTimeout(scrollButtonTimeout);
+        if (scrollButtonTimeout) clearTimeout(scrollButtonTimeout);
+
+        if (window.scrollY > 300) {
+            scrollToTopBtn.classList.remove('hidden');
+        } else {
+            scrollToTopBtn.classList.add('hidden');
+        }
+
+        const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50;
+        if (!isAtBottom) {
+            scrollToBottomBtn.classList.remove('hidden');
+        } else {
+            scrollToBottomBtn.classList.add('hidden');
+        }
+
+        // Autohide after 2 seconds
+        scrollButtonTimeout = setTimeout(() => {
+            scrollToTopBtn.classList.add('hidden');
+            scrollToBottomBtn.classList.add('hidden');
+        }, 2000);
     }
 
-    // Show buttons based on scroll position
-    if (window.scrollY > 200) {
-    scrollToTopBtn.classList.remove('hidden');
-    }
-
-    const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100;
-    if (!isAtBottom) {
-    scrollToBottomBtn.classList.remove('hidden');
-    }
-
-    // Set autohide timer for 1.5 seconds
-    scrollButtonTimeout = setTimeout(() => {
-    scrollToTopBtn.classList.add('hidden');
-    scrollToBottomBtn.classList.add('hidden');
-    }, 1500);
-    }
-
-    // Function to fetch and display posts
     async function fetchAndDisplayPosts() {
-    try {
-    const response = await fetch('files.json');
-    const filesJson = await response.json(); // filesJson is now an array, not an object with a 'posts' key
+        try {
+            // Note: Ensure files.json is in the same directory
+            const response = await fetch('files.json');
+            const filesJson = await response.json(); 
 
-    // Fetch content for each post
-    // Iterate directly over the array of post objects
-    const fetchPromises = filesJson.map(async postData => {
-    const postContentResponse = await fetch(postData.contentFile); // Use postData.contentFile
-    const postContent = await postContentResponse.text();
-    return {
-    id: postData.id,
-    title: postData.title,
-    images: postData.images || [],
-    content: postContent,
-    // No 'date' in your files.json, so we'll sort by ID
-    };
-    });
+            const fetchPromises = filesJson.map(async postData => {
+                try {
+                    const postContentResponse = await fetch(postData.contentFile);
+                    if (!postContentResponse.ok) throw new Error('File not found');
+                    const postContent = await postContentResponse.text();
+                    return {
+                        id: postData.id,
+                        title: postData.title,
+                        images: postData.images || [],
+                        content: postContent,
+                    };
+                } catch (e) {
+                    console.warn(`Could not load content for ${postData.title}`);
+                    return null;
+                }
+            });
 
-    postsData = await Promise.all(fetchPromises);
+            // Filter out failed loads
+            const results = await Promise.all(fetchPromises);
+            postsData = results.filter(p => p !== null);
 
-    // Sort posts from oldest to newest based on ID
-    postsData.sort((a, b) => a.id - b.id);
+            // Sort posts (Oldest ID first)
+            postsData.sort((a, b) => a.id - b.id);
 
-    renderPosts(postsData);
-    renderPostIndex(postsData);
+            renderPosts(postsData);
+            renderPostIndex(postsData);
 
-    } catch (error) {
-    console.error('Error fetching or parsing posts:', error);
-    postList.innerHTML = '<p>Failed to load posts. Please try again later.</p>';
+        } catch (error) {
+            console.error('Error fetching or parsing posts:', error);
+            postList.innerHTML = '<div class="post-card"><p style="text-align:center">Failed to load posts. Please ensure files.json is correct.</p></div>';
+        }
     }
-    }
 
-    // Function to render posts as cards
     function renderPosts(postsToRender) {
-    postList.innerHTML = ''; // Clear existing posts
-    if (postsToRender.length === 0) {
-    postList.innerHTML = '<p>No posts found.</p>';
-    return;
+        postList.innerHTML = ''; 
+        if (postsToRender.length === 0) {
+            postList.innerHTML = '<div class="post-card"><p>No posts found.</p></div>';
+            return;
+        }
+
+        postsToRender.forEach(post => {
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            postCard.id = `post-${post.id}`;
+
+            const readTime = calculateReadingTime(post.content);
+
+            // Using CSS classes for styling instead of inline line-breaks
+            postCard.innerHTML = `
+                <h2>${post.title}</h2>
+                <span class="read-time">${readTime}</span>
+                <div class="post-content"><p>${post.content.replace(/\n/g,'<br>')}</p></div>
+                ${post.images.length > 0 ? `
+                <div class="carousel" data-post-id="${post.id}">
+                    <img src="" alt="Blurred background" class="carousel-background-image">
+                    <img src="" alt="Post image" class="carousel-image">
+                    <button class="carousel-button prev">&lt;</button>
+                    <button class="carousel-button next">&gt;</button>
+                </div>
+                ` : ''}
+            `;
+            postList.appendChild(postCard);
+
+            if (post.images.length > 0) {
+                setupCarousel(postCard, post.images);
+            }
+        });
     }
 
-    postsToRender.forEach(post => {
-    const postCard = document.createElement('div');
-    postCard.className = 'post-card';
-    postCard.id = `post-${post.id}`; // Add ID for direct linking
+    function setupCarousel(card, images) {
+        const carouselImage = card.querySelector('.carousel-image');
+        const carouselBgImage = card.querySelector('.carousel-background-image');
+        const prevButton = card.querySelector('.prev');
+        const nextButton = card.querySelector('.next');
 
-    const readTime = calculateReadingTime(post.content);
+        let currentImageIndex = 0;
 
-    postCard.innerHTML = `
-    <h2>${post.title}</h2>
-    <span class="read-time">${readTime}</span>
-    <p>${post.content.replace(/\n/g,'<br>')}</p> <!-- Display full content, replace newlines with <br> -->
-    ${post.images.length > 0 ? `
-    <div class="carousel" data-post-id="${post.id}">
-    <img src="" alt="Blurred background" class="carousel-background-image">
-    <img src="" alt="Post image" class="carousel-image">
-    <button class="carousel-button prev">&lt;</button>
-    <button class="carousel-button next">&gt;</button>
-    </div>
-    ` : ''}
-    `;
-    postList.appendChild(postCard);
+        const showImage = (index) => {
+            carouselImage.src = images[index];
+            carouselBgImage.src = images[index];
+        };
 
-    // Initialize carousel if images exist
-    if (post.images.length > 0) {
-    const carousel = postCard.querySelector('.carousel');
-    const carouselImage = carousel.querySelector('.carousel-image');
-    const carouselBgImage = carousel.querySelector('.carousel-background-image');
-    const prevButton = carousel.querySelector('.prev');
-    const nextButton = carousel.querySelector('.next');
+        prevButton.addEventListener('click', () => {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            showImage(currentImageIndex);
+        });
 
-    let currentImageIndex = 0;
+        nextButton.addEventListener('click', () => {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            showImage(currentImageIndex);
+        });
 
-    const showImage = (index) => {
-    carouselImage.src = post.images[index];
-    carouselBgImage.src = post.images[index]; // Set background image source
-    carouselImage.style.opacity = 1; // Ensure main image is visible
-    };
+        // Simple Swipe Detection
+        let touchStartX = 0;
+        card.querySelector('.carousel').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+        card.querySelector('.carousel').addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].clientX;
+            if (touchEndX < touchStartX - 50) {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showImage(currentImageIndex);
+            }
+            if (touchEndX > touchStartX + 50) {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                showImage(currentImageIndex);
+            }
+        });
 
-    prevButton.addEventListener('click', () => {
-    currentImageIndex = (currentImageIndex - 1 + post.images.length) % post.images.length;
-    showImage(currentImageIndex);
-    });
+        carouselImage.addEventListener('click', () => {
+            fullscreenImage.src = carouselImage.src;
+            fullscreenOverlay.classList.remove('hidden');
+        });
 
-    nextButton.addEventListener('click', () => {
-    currentImageIndex = (currentImageIndex + 1) % post.images.length;
-    showImage(currentImageIndex);
-    });
-
-    // Touch swipe for mobile
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    carousel.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-    });
-
-    carousel.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].clientX;
-    if (touchEndX < touchStartX - 50) { // Swiped left
-    currentImageIndex = (currentImageIndex + 1) % post.images.length;
-    showImage(currentImageIndex);
-    }
-    if (touchEndX > touchStartX + 50) { // Swiped right
-    currentImageIndex = (currentImageIndex - 1 + post.images.length) % post.images.length;
-    showImage(currentImageIndex);
-    }
-    });
-
-    // Fullscreen image on click
-    carouselImage.addEventListener('click', () => {
-    fullscreenImage.src = carouselImage.src;
-    fullscreenOverlay.classList.remove('hidden');
-    });
-
-    showImage(currentImageIndex); // Display the first image
-    }
-    });
+        showImage(0);
     }
 
-    // Function to render the post index in the header
     function renderPostIndex(posts) {
-    postIndexList.innerHTML = ''; // Clear existing index
-    posts.forEach(post => {
-    const listItem = document.createElement('li');
-    const link = document.createElement('a');
-    link.href = `#post-${post.id}`; // Link to the post card
-    link.textContent = post.title;
-    listItem.appendChild(link);
-    postIndexList.appendChild(listItem);
-    });
+        postIndexList.innerHTML = '';
+        posts.forEach(post => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = `#post-${post.id}`;
+            link.textContent = post.title;
+            // Smooth scroll on click for the index links
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById(`post-${post.id}`).scrollIntoView({behavior: 'smooth'});
+            });
+            listItem.appendChild(link);
+            postIndexList.appendChild(listItem);
+        });
     }
 
-    // Search functionality
     searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredPosts = postsData.filter(post =>
-    post.title.toLowerCase().includes(searchTerm) ||
-    post.content.toLowerCase().includes(searchTerm)
-    );
-    renderPosts(filteredPosts);
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredPosts = postsData.filter(post =>
+            post.title.toLowerCase().includes(searchTerm) ||
+            post.content.toLowerCase().includes(searchTerm)
+        );
+        renderPosts(filteredPosts);
     });
 
-    // Scroll to bottom button functionality
     scrollToBottomBtn.addEventListener('click', () => {
-    const lastCard = postList.lastElementChild;
-    if (lastCard) {
-    lastCard.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     });
 
-    // Scroll to top button functionality
     scrollToTopBtn.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Show scroll buttons with autohide on scroll
     window.addEventListener('scroll', showScrollButtonsWithAutohide);
+    fullscreenOverlay.addEventListener('click', () => fullscreenOverlay.classList.add('hidden'));
 
-    // Close fullscreen overlay
-    fullscreenOverlay.addEventListener('click', () => {
-    fullscreenOverlay.classList.add('hidden');
-    });
-
-    // Initial fetch and display
     fetchAndDisplayPosts();
 });
