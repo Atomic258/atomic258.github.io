@@ -1,0 +1,35 @@
+Personal AI Lab Rankings:
+Top:
+- Google (DeepMind)
+- OpenAI
+- Anthropic
+- xAI
+- DeepSeek
+- Alibaba (Qwen)
+
+Middle:
+- Meta AI
+- Tencent AI (Hunyuan)
+- Mistral AI
+- Reka AI (small models)
+- Microsoft (Phi-4) (quake)
+- Amazon (Nova)
+- NVIDIA (fine-tunes)
+- Moonshot China (Kimi)
+
+Low:
+- LG (EXAONE)
+- AI21 Labs (Jamba)
+- Cohere
+- Nous Research
+- Databricks
+- Perplexity (Sonar)
+- Abacus AI (Smaug)
+
+Unsure:
+- Zhipu AI (GLM)
+- 01 AI (Yi models)
+- Ai2 (OLMo)
+- NexusFlow
+- StepFun
+- Baidu (Ernie)

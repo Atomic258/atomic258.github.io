@@ -1,0 +1,18 @@
+How To Resist Burn-in on OLED Monitors:
+1. Autohide taskbar
+2. Dark mode
+3. Full screen browser
+4. SVP4 Pro for filling black bars (YouTube/videos)
+5. No icons on desktop
+6. Don't leave display unattended (turn off)
+7. Run imaging cleaning every 4 hours
+8. Allow monitor to-do screen-cleaning when suggested
+9. Black wallpaper (or auto changing)
+10. Use pixel shift on most aggressive setting
+11. Use logo detection
+12. Don't use max brightness
+13. Limit HDR usage
+14. Aggressive screen timeout (1-2 min)
+15. Use HUD opacity in games (or hide)
+16. Use warmer display modes (5000K) (or nightlight) (lower blue in display settings) (blue degrades faster)
+17. Yellow crosshair should be most resistant to burn-in (mix of red and green) (also you can mix it up with a few colours)

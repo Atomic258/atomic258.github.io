@@ -1,0 +1,4 @@
+How To Root & Why To Root:
+First the how - https://thedroidwin.com/root-android-magisk/
+
+More importantly I recommend users root to allow for a few tweaks. Firstly I like that you can use AdAway which is a system wide ad-blocker using the hosts file on your device. This means ads aren't able to even be loaded from specific domains, secondly rooting will allow you to hide that stupid navigation bar taking up space at the bottom of your screen.
