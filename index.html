@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atomic's Blog</title>
-  <!-- Rounded, friendly fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -51,12 +50,17 @@
     </section>
   </main>
 
-  <div id="fullscreen-overlay" class="hidden">
+  <!-- Fullscreen Overlay with Navigation -->
+  <div id="fullscreen-overlay" class="hidden-overlay">
+    <button id="fullscreen-prev" class="fullscreen-btn">&lt;</button>
     <img id="fullscreen-image" src="" alt="Fullscreen Image">
+    <button id="fullscreen-next" class="fullscreen-btn">&gt;</button>
+    <button id="fullscreen-close" class="fullscreen-close-btn">&times;</button>
   </div>
 
-  <button id="scroll-to-bottom" title="Scroll to bottom">↓</button>
-  <button id="scroll-to-top" title="Scroll to top">↑</button>
+  <!-- Scroll Buttons (Class 'invisible' controls soft fade) -->
+  <button id="scroll-to-bottom" class="scroll-btn invisible" title="Scroll to bottom">↓</button>
+  <button id="scroll-to-top" class="scroll-btn invisible" title="Scroll to top">↑</button>
 
   <script src="script.js"></script>
 </body>
