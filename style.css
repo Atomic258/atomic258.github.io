@@ -1,0 +1,328 @@
+/* Basic Reset & Variables */
+:root {
+    --background-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --primary-color: #007bff;
+    --secondary-color: #333;
+    --border-color: #444;
+    --link-color: #8ab4f8;
+    --hover-color: #666;
+    --index-bg-color: #282828;
+}
+
+/* Default font size for mobile (1rem = 16px). Explicitly set for clarity. */
+html {
+    font-size: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 50rem; /* 800px / 16px = 50rem (Default for mobile) */
+    margin: 0 auto;
+    padding: 1.25rem; /* 20px / 16px = 1.25rem */
+}
+
+/* Header */
+header {
+    background-color: var(--secondary-color);
+    padding-top: 1.25rem; /* 20px / 16px = 1.25rem */
+    border-bottom: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-content {
+    padding-bottom: 1.25rem; /* 20px / 16px = 1.25rem */
+}
+
+header h1 {
+    margin-top: 0;
+    margin-bottom: 0.9375rem; /* 15px / 16px = 0.9375rem */
+    color: var(--text-color);
+}
+
+#search-input {
+    width: calc(100% - 2.5rem); /* 40px / 16px = 2.5rem */
+    max-width: 25rem; /* 400px / 16px = 25rem */
+    padding: 0.625rem 0.9375rem; /* 10px / 16px = 0.625rem, 15px / 16px = 0.9375rem */
+    border: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
+    border-radius: 0.3125rem; /* 5px / 16px = 0.3125rem */
+    background-color: #2a2a2a;
+    color: var(--text-color);
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+#search-input::placeholder {
+    color: #bbb;
+}
+
+/* Post Index Navigation */
+#post-index-nav {
+    background-color: var(--index-bg-color);
+    padding: 0.625rem 1.25rem; /* 10px / 16px = 0.625rem, 20px / 16px = 1.25rem */
+    border-top: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
+}
+
+/* Post Index (now vertical, 4-5 lines) */
+#post-index-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 8rem; /* ≈5 lines */
+    overflow-y: auto; /* vertical scroll */
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* spacing between links */
+}
+
+/* Show scrollbar for Webkit browsers (Chrome, Safari) */
+#post-index-list::-webkit-scrollbar {
+    display: block;
+}
+
+#post-index-list li {
+    margin: 0; /* kill right-margin */
+}
+
+#post-index-list a {
+    color: var(--link-color);
+    text-decoration: none;
+    display: block;
+    padding: 0.3125rem 0; /* 5px / 16px = 0.3125rem */
+    border-radius: 0.1875rem; /* 3px / 16px = 0.1875rem */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#post-index-list a:hover {
+    background-color: var(--hover-color);
+    color: white;
+}
+
+/* Post List (now contains cards) */
+#post-list {
+    padding-top: 1.25rem; /* 20px / 16px = 1.25rem */
+}
+
+/* Allow scrolling past last card */
+main.container {
+    padding-bottom: 100vh;
+}
+
+/* Post Card Styling */
+.post-card {
+    background-color: var(--secondary-color);
+    border: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
+    border-radius: 0.5rem; /* 8px / 16px = 0.5rem */
+    margin-bottom: 1.5625rem; /* 25px / 16px = 1.5625rem */
+    padding: 1.25rem; /* 20px / 16px = 1.25rem */
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2); /* 4px / 16px = 0.25rem, 8px / 16px = 0.5rem */
+}
+
+.post-card h2 {
+    margin-top: 0;
+    margin-bottom: 0.625rem; /* 10px / 16px = 0.625rem */
+    color: var(--link-color);
+    font-size: 1.8em;
+}
+
+.post-card .read-time {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 0.9375rem; /* 15px / 16px = 0.9375rem */
+    display: block;
+}
+
+.post-card p {
+    margin-bottom: 1em;
+}
+
+/* Image Carousel */
+.carousel {
+    position: relative; /* Crucial for positioning child images */
+    margin-bottom: 1.25rem; /* 20px / 16px = 1.25rem */
+    overflow: hidden;
+    border-radius: 0.5rem; /* 8px / 16px = 0.5rem */
+    background-color: #000; /* Fallback background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 12.5rem; /* 200px / 16px = 12.5rem */
+}
+
+.carousel-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures it covers the entire carousel area */
+    filter: blur(20px); /* Apply a strong blur */
+    transform: scale(1.05); /* Slightly scale up to hide blur edges */
+    z-index: 0; /* Place behind the main image */
+    opacity: 0.7; /* Adjust opacity for desired effect */
+}
+
+.carousel-image {
+    max-width: 100%;
+    max-height: 25rem; /* 400px / 16px = 25rem */
+    display: block;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: opacity 0.5s ease-in-out;
+    position: relative; /* Ensures it sits on top of the background image */
+    z-index: 1; /* Place above the background image */
+}
+
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.625rem 0.9375rem; /* 10px / 16px = 0.625rem, 15px / 16px = 0.9375rem */
+    cursor: pointer;
+    font-size: 1.5em;
+    border-radius: 0.3125rem; /* 5px / 16px = 0.3125rem */
+    z-index: 2; /* Ensure buttons are on top of both images */
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+    display:flex;    /* centres icon horizontally */
+    align-items:center;    /* centres icon vertically */
+    justify-content:center;
+    line-height:1;    /* kills baseline offset */
+}
+
+.carousel-button:hover {
+    opacity: 1;
+}
+
+.carousel-button.prev {
+    left: 0.625rem; /* 10px / 16px = 0.625rem */
+}
+
+.carousel-button.next {
+    right: 0.625rem; /* 10px / 16px = 0.625rem */
+}
+
+/* Fullscreen Overlay */
+#fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: zoom-out;
+}
+
+#fullscreen-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+/* Scroll Buttons (Bottom & Top) */
+#scroll-to-bottom,
+#scroll-to-top {
+    position: fixed;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 3.125rem; /* 50px / 16px = 3.125rem */
+    height: 3.125rem; /* 50px / 16px = 3.125rem */
+    font-size: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    transform: translateY(-0.1em); /* Nudge arrow up more precisely */
+    cursor: pointer;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.3); /* 2px / 16px = 0.125rem, 10px / 16px = 0.625rem */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+}
+
+#scroll-to-bottom {
+    bottom: 1.25rem; /* 20px / 16px = 1.25rem */
+    right: 1.25rem; /* 20px / 16px = 1.25rem */
+}
+
+#scroll-to-top {
+    bottom: 5rem; /* 80px / 16px = 5rem */
+    right: 1.25rem; /* 20px / 16px = 1.25rem */
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive Design - Mobile (max-width: 600px) */
+@media (max-width: 37.5rem) { /* 600px / 16px = 37.5rem */
+    .container {
+    padding: 0.625rem; /* 10px / 16px = 0.625rem */
+    }
+
+    .header-content {
+    padding-bottom: 0.625rem; /* 10px / 16px = 0.625rem */
+    }
+
+    #post-index-nav {
+    padding: 0.625rem; /* 10px / 16px = 0.625rem */
+    }
+
+    header h1 {
+    font-size: 1.8em;
+    }
+
+    #search-input {
+    width: calc(100% - 1.25rem); /* 20px / 16px = 1.25rem */
+    }
+
+    .carousel-button {
+    padding: 0.5rem 0.75rem; /* 8px / 16px = 0.5rem, 12px / 16px = 0.75rem */
+    font-size: 1.2em;
+    }
+
+    #scroll-to-bottom,
+    #scroll-to-top {
+    width: 2.5rem; /* 40px / 16px = 2.5rem */
+    height: 2.5rem; /* 40px / 16px = 2.5rem */
+    font-size: 1.5em;
+    bottom: 0.9375rem; /* 15px / 16px = 0.9375rem */
+    right: 0.9375rem; /* 15px / 16px = 0.9375rem */
+    }
+
+    #scroll-to-top {
+    bottom: 4.0625rem; /* 65px / 16px = 4.0625rem */
+    }
+}
+
+/* Responsive Design - Desktop (min-width: 601px) */
+@media (min-width: 37.5625rem) { /* 601px / 16px = 37.5625rem */
+    html {
+    font-size: 130%; /* This makes 1rem = 20.8px */
+    }
+    .container {
+    max-width: 50rem; /* This will now be 50 * 20.8px = 1040px */
+    }
+}
