@@ -1,9 +1,9 @@
 /* --- Variables & Theming --- */
 :root {
     /* --- Light Mode (Default) --- */
-    --bg-main: #FFFDF9;       /* Creamy White */
+    --bg-main: #FFFDF9;       
     --card-bg: #ffffff;
-    --text-primary: #4A403A;  /* Warm Coffee */
+    --text-primary: #4A403A;  
     --text-secondary: #7D746D;
     --input-bg: #ffffff;
     --border-subtle: rgba(0,0,0,0.03);
@@ -15,7 +15,7 @@
     --accent-yellow: #FFF4BD;
     --accent-blue: #C4E0F9;
     
-    --primary-btn: #FFB7B2;   /* Soft Salmon */
+    --primary-btn: #FFB7B2;   
     --btn-text: #ffffff;
     
     --shadow-soft: 0 12px 30px -10px rgba(136, 120, 106, 0.15);
@@ -25,14 +25,13 @@
 
 /* --- Dark Mode Variables --- */
 [data-theme="dark"] {
-    --bg-main: #23211f;       /* Warm Dark Grey */
-    --card-bg: #2d2a28;       /* Slightly lighter dark */
-    --text-primary: #EAE0D5;  /* Off-white */
+    --bg-main: #23211f;       
+    --card-bg: #2d2a28;       
+    --text-primary: #EAE0D5;  
     --text-secondary: #B0A69E;
     --input-bg: #363230;
     --border-subtle: rgba(255,255,255,0.05);
 
-    /* Accents (Muted for dark mode) */
     --accent-peach: #8a6855;
     --accent-mint: #5e7055;
     --accent-lavender: #5a5d85;
@@ -90,7 +89,7 @@ body {
 .container {
     max-width: 1100px; 
     margin: 0 auto;
-    padding: 1rem 1.5rem; /* Reduced top padding from 2rem to 1rem */
+    padding: 1rem 1.5rem; 
     position: relative;
 }
 
@@ -98,18 +97,17 @@ body {
 header {
     text-align: center;
     margin-bottom: 3rem; 
-    padding-top: 1rem; /* Reduced from 3rem to 1rem for less gap */
+    padding-top: 1rem; 
     position: relative;
 }
 
-/* New Container for Title + Toggle */
 .header-title-row {
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
     margin-bottom: 2rem;
-    min-height: 4rem; /* Ensure height for the absolute button */
+    min-height: 4rem; 
 }
 
 header h1 {
@@ -117,7 +115,7 @@ header h1 {
     font-weight: 600;
     font-size: 3.5rem;
     color: var(--text-primary);
-    margin: 0; /* Remove margin to let flexbox center it properly */
+    margin: 0; 
     letter-spacing: -1px;
 }
 
@@ -126,7 +124,7 @@ header h1 {
     position: absolute;
     right: 0;
     top: 50%;
-    transform: translateY(-50%); /* Center vertically relative to H1 */
+    transform: translateY(-50%); 
     z-index: 100;
 }
 
@@ -204,7 +202,6 @@ header h1 {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    /* Increased gap values significantly */
     row-gap: 1.5rem; 
     column-gap: 1rem;
 }
@@ -221,7 +218,7 @@ header h1 {
     transition: all 0.2s ease;
     border: 1px solid var(--border-subtle);
     white-space: nowrap; 
-    display: inline-block; /* Helps with vertical alignment */
+    display: inline-block; 
 }
 
 #post-index-list a:hover {
@@ -313,9 +310,10 @@ header h1 {
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));
 }
 
+/* Carousel Buttons */
 .carousel-button {
     position: absolute;
-    z-index: 3;
+    z-index: 10; /* Boosted Z-Index for Mobile */
     top: 50%;
     transform: translateY(-50%);
     background-color: var(--card-bg);
@@ -331,6 +329,7 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+    touch-action: manipulation; /* Improves touch response */
 }
 
 .carousel-button:hover {
@@ -345,23 +344,70 @@ header h1 {
 /* --- Fullscreen Overlay --- */
 #fullscreen-overlay {
     background-color: rgba(0, 0, 0, 0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.hidden-overlay {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 #fullscreen-image {
-    max-width: 95%;
-    max-height: 95%;
+    max-width: 90%;
+    max-height: 90%;
     border-radius: 4px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
 }
 
-/* --- Scroll Buttons --- */
-#scroll-to-bottom,
-#scroll-to-top {
+/* Fullscreen Nav Buttons */
+.fullscreen-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 1001;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+#fullscreen-prev { left: 20px; }
+#fullscreen-next { right: 20px; }
+
+.fullscreen-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 3rem;
+    cursor: pointer;
+    z-index: 1001;
+    line-height: 1;
+}
+
+/* --- Scroll Buttons (With Soft Transition) --- */
+.scroll-btn {
     position: fixed;
     width: 3.5rem;
     height: 3.5rem;
@@ -375,12 +421,18 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.5s ease, visibility 0.5s ease;
     z-index: 999;
 }
 
-#scroll-to-bottom:hover,
-#scroll-to-top:hover {
+/* Soft entry/exit classes */
+.invisible {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.scroll-btn:hover {
     transform: translateY(-3px);
     background-color: var(--primary-btn);
 }
@@ -395,9 +447,17 @@ header h1 {
     header h1 { font-size: 2.5rem; }
     
     .carousel { height: 350px; }
-    .carousel-button { width: 40px; height: 40px; }
     
-    /* On mobile, stack the title and button nicely */
+    /* Make buttons larger/easier to hit on mobile */
+    .carousel-button { 
+        width: 45px; 
+        height: 45px; 
+        background-color: rgba(255,255,255,0.9); /* More opacity on mobile */
+    } 
+    [data-theme="dark"] .carousel-button {
+        background-color: rgba(45, 42, 40, 0.9);
+    }
+    
     .header-title-row {
         flex-direction: column;
         gap: 1rem;
@@ -409,5 +469,3 @@ header h1 {
     
     #post-index-list { gap: 0.8rem; } 
 }
-
-.hidden { display: none !important; }
