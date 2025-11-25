@@ -1,328 +1,370 @@
-/* Basic Reset & Variables */
+/* Modern Pastel Variables */
 :root {
-    --background-color: #1a1a1a;
-    --text-color: #e0e0e0;
-    --primary-color: #007bff;
-    --secondary-color: #333;
-    --border-color: #444;
-    --link-color: #8ab4f8;
-    --hover-color: #666;
-    --index-bg-color: #282828;
+    /* Backgrounds */
+    --bg-color: #f7f9fc;
+    --card-bg: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    
+    /* Text */
+    --text-main: #4a5568;
+    --text-heading: #2d3748;
+    --text-light: #a0aec0;
+    
+    /* Pastel Accents */
+    --accent-blue: #c3e0fa;
+    --accent-pink: #fad2e1;
+    --accent-green: #d7f5e6;
+    --accent-purple: #e2d4f5;
+    --primary-btn: #8ec5fc; /* Stronger blue for interaction */
+    
+    /* Shadows */
+    --shadow-soft: 0 10px 25px -5px rgba(160, 174, 192, 0.25), 0 8px 10px -6px rgba(160, 174, 192, 0.1);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
-/* Default font size for mobile (1rem = 16px). Explicitly set for clarity. */
 html {
     font-size: 100%;
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Nunito', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.7;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
+/* --- Background Blobs Animation --- */
+.blob-cont {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.6;
+    animation: float 20s infinite alternate;
+}
+
+.blob-1 {
+    width: 500px;
+    height: 500px;
+    background: var(--accent-blue);
+    top: -100px;
+    left: -100px;
+}
+
+.blob-2 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent-pink);
+    bottom: -50px;
+    right: -100px;
+    animation-delay: -5s;
+}
+
+.blob-3 {
+    width: 300px;
+    height: 300px;
+    background: var(--accent-green);
+    top: 40%;
+    left: 40%;
+    animation-delay: -10s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 50px) scale(1.1); }
+}
+
+/* --- Layout --- */
 .container {
-    max-width: 50rem; /* 800px / 16px = 50rem (Default for mobile) */
+    max-width: 48rem; /* Approx 768px */
     margin: 0 auto;
-    padding: 1.25rem; /* 20px / 16px = 1.25rem */
+    padding: 2rem 1.5rem;
+    position: relative;
 }
 
-/* Header */
+/* --- Header --- */
 header {
-    background-color: var(--secondary-color);
-    padding-top: 1.25rem; /* 20px / 16px = 1.25rem */
-    border-bottom: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 2rem;
+    border-radius: 30px;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 3rem;
+    border: 1px solid rgba(255,255,255,0.5);
     text-align: center;
-    display: flex;
-    flex-direction: column;
-}
-
-.header-content {
-    padding-bottom: 1.25rem; /* 20px / 16px = 1.25rem */
 }
 
 header h1 {
-    margin-top: 0;
-    margin-bottom: 0.9375rem; /* 15px / 16px = 0.9375rem */
-    color: var(--text-color);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0 0 1.5rem 0;
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+}
+
+/* Search Bar */
+.search-wrapper {
+    position: relative;
+    max-width: 25rem;
+    margin: 0 auto;
 }
 
 #search-input {
-    width: calc(100% - 2.5rem); /* 40px / 16px = 2.5rem */
-    max-width: 25rem; /* 400px / 16px = 25rem */
-    padding: 0.625rem 0.9375rem; /* 10px / 16px = 0.625rem, 15px / 16px = 0.9375rem */
-    border: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
-    border-radius: 0.3125rem; /* 5px / 16px = 0.3125rem */
-    background-color: #2a2a2a;
-    color: var(--text-color);
-    font-size: 1em;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    padding-right: 3rem; /* space for icon */
+    border: none;
+    border-radius: 50px;
+    background-color: #ffffff;
+    color: var(--text-main);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    box-shadow: var(--shadow-inner);
     box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
-#search-input::placeholder {
-    color: #bbb;
+#search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-blue);
 }
 
-/* Post Index Navigation */
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* --- Navigation Pills --- */
 #post-index-nav {
-    background-color: var(--index-bg-color);
-    padding: 0.625rem 1.25rem; /* 10px / 16px = 0.625rem, 20px / 16px = 1.25rem */
-    border-top: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
 }
 
-/* Post Index (now vertical, 4-5 lines) */
+.nav-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
 #post-index-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 8rem; /* ≈5 lines */
-    overflow-y: auto; /* vertical scroll */
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem; /* spacing between links */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    max-height: 150px;
+    overflow-y: auto;
 }
 
-/* Show scrollbar for Webkit browsers (Chrome, Safari) */
 #post-index-list::-webkit-scrollbar {
-    display: block;
+    width: 6px;
 }
-
-#post-index-list li {
-    margin: 0; /* kill right-margin */
+#post-index-list::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 10px;
 }
 
 #post-index-list a {
-    color: var(--link-color);
     text-decoration: none;
-    display: block;
-    padding: 0.3125rem 0; /* 5px / 16px = 0.3125rem */
-    border-radius: 0.1875rem; /* 3px / 16px = 0.1875rem */
-    transition: background-color 0.2s ease, color 0.2s ease;
+    color: var(--text-main);
+    background-color: rgba(255,255,255,0.6);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
 }
 
 #post-index-list a:hover {
-    background-color: var(--hover-color);
-    color: white;
+    background-color: var(--accent-purple);
+    color: var(--text-heading);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-/* Post List (now contains cards) */
-#post-list {
-    padding-top: 1.25rem; /* 20px / 16px = 1.25rem */
-}
-
-/* Allow scrolling past last card */
-main.container {
-    padding-bottom: 100vh;
-}
-
-/* Post Card Styling */
+/* --- Post Cards --- */
 .post-card {
-    background-color: var(--secondary-color);
-    border: 0.0625rem solid var(--border-color); /* 1px / 16px = 0.0625rem */
-    border-radius: 0.5rem; /* 8px / 16px = 0.5rem */
-    margin-bottom: 1.5625rem; /* 25px / 16px = 1.5625rem */
-    padding: 1.25rem; /* 20px / 16px = 1.25rem */
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2); /* 4px / 16px = 0.25rem, 8px / 16px = 0.5rem */
+    background-color: var(--card-bg);
+    border-radius: 30px;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255,255,255,0.8);
+    transition: transform 0.3s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-3px);
 }
 
 .post-card h2 {
+    font-family: 'Poppins', sans-serif;
     margin-top: 0;
-    margin-bottom: 0.625rem; /* 10px / 16px = 0.625rem */
-    color: var(--link-color);
-    font-size: 1.8em;
+    margin-bottom: 0.5rem;
+    color: var(--text-heading);
+    font-size: 2rem;
 }
 
 .post-card .read-time {
-    font-size: 0.9em;
-    color: #aaa;
-    margin-bottom: 0.9375rem; /* 15px / 16px = 0.9375rem */
-    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8ca0b8;
+    background: #edf2f7;
+    padding: 0.2rem 0.8rem;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 1.5rem;
 }
 
 .post-card p {
-    margin-bottom: 1em;
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
 }
 
-/* Image Carousel */
+/* --- Carousel --- */
 .carousel {
-    position: relative; /* Crucial for positioning child images */
-    margin-bottom: 1.25rem; /* 20px / 16px = 1.25rem */
+    position: relative;
+    margin-top: 2rem;
+    border-radius: 20px;
     overflow: hidden;
-    border-radius: 0.5rem; /* 8px / 16px = 0.5rem */
-    background-color: #000; /* Fallback background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 12.5rem; /* 200px / 16px = 12.5rem */
+    background-color: #f0f0f0;
+    min-height: 250px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
 }
 
 .carousel-background-image {
     position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures it covers the entire carousel area */
-    filter: blur(20px); /* Apply a strong blur */
-    transform: scale(1.05); /* Slightly scale up to hide blur edges */
-    z-index: 0; /* Place behind the main image */
-    opacity: 0.7; /* Adjust opacity for desired effect */
+    object-fit: cover;
+    filter: blur(30px);
+    opacity: 0.6;
+    transform: scale(1.1);
 }
 
 .carousel-image {
-    max-width: 100%;
-    max-height: 25rem; /* 400px / 16px = 25rem */
+    position: relative;
+    max-width: 90%;
+    max-height: 400px;
     display: block;
     margin: 0 auto;
-    cursor: pointer;
-    transition: opacity 0.5s ease-in-out;
-    position: relative; /* Ensures it sits on top of the background image */
-    z-index: 1; /* Place above the background image */
+    z-index: 2;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    top: 50%;
+    transform: translateY(-50%); /* Center vertically if container has height */
+    margin-top: 2rem; /* Spacing hack for simple layout */
+    margin-bottom: 2rem;
+    cursor: zoom-in;
 }
 
 .carousel-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-heading);
     border: none;
-    padding: 0.625rem 0.9375rem; /* 10px / 16px = 0.625rem, 15px / 16px = 0.9375rem */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 1.5em;
-    border-radius: 0.3125rem; /* 5px / 16px = 0.3125rem */
-    z-index: 2; /* Ensure buttons are on top of both images */
-    opacity: 0.8;
-    transition: opacity 0.2s ease;
-    display:flex;    /* centres icon horizontally */
-    align-items:center;    /* centres icon vertically */
-    justify-content:center;
-    line-height:1;    /* kills baseline offset */
+    font-weight: bold;
+    font-size: 1.2rem;
+    z-index: 3;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-button:hover {
-    opacity: 1;
+    background: var(--accent-blue);
+    color: white;
+    transform: translateY(-50%) scale(1.1);
 }
 
-.carousel-button.prev {
-    left: 0.625rem; /* 10px / 16px = 0.625rem */
-}
+.carousel-button.prev { left: 15px; }
+.carousel-button.next { right: 15px; }
 
-.carousel-button.next {
-    right: 0.625rem; /* 10px / 16px = 0.625rem */
-}
-
-/* Fullscreen Overlay */
+/* --- Fullscreen Overlay --- */
 #fullscreen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    cursor: zoom-out;
+    background-color: rgba(255, 255, 255, 0.95); /* Light overlay instead of dark */
+    backdrop-filter: blur(5px);
 }
 
-#fullscreen-image {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-}
-
-/* Scroll Buttons (Bottom & Top) */
+/* --- Scroll Buttons --- */
 #scroll-to-bottom,
 #scroll-to-top {
     position: fixed;
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-btn), #a0d2eb);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 3.125rem; /* 50px / 16px = 3.125rem */
-    height: 3.125rem; /* 50px / 16px = 3.125rem */
-    font-size: 2em;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    line-height: 1;
-    transform: translateY(-0.1em); /* Nudge arrow up more precisely */
     cursor: pointer;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.3); /* 2px / 16px = 0.125rem, 10px / 16px = 0.625rem */
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    box-shadow: 0 8px 15px rgba(142, 197, 252, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 999;
 }
 
-#scroll-to-bottom {
-    bottom: 1.25rem; /* 20px / 16px = 1.25rem */
-    right: 1.25rem; /* 20px / 16px = 1.25rem */
+#scroll-to-bottom:hover,
+#scroll-to-top:hover {
+    transform: scale(1.1) rotate(360deg); /* Playful rotation */
 }
 
-#scroll-to-top {
-    bottom: 5rem; /* 80px / 16px = 5rem */
-    right: 1.25rem; /* 20px / 16px = 1.25rem */
+#scroll-to-bottom { bottom: 2rem; right: 2rem; }
+#scroll-to-top { bottom: 6.5rem; right: 2rem; }
+
+/* --- Mobile Tweaks --- */
+@media (max-width: 600px) {
+    header {
+        padding: 1.5rem;
+        border-radius: 20px;
+    }
+    header h1 { font-size: 1.8rem; }
+    .post-card { padding: 1.5rem; border-radius: 20px; }
+    
+    #scroll-to-bottom, #scroll-to-top {
+        width: 3rem; height: 3rem;
+        right: 1rem; bottom: 1rem;
+    }
+    #scroll-to-top { bottom: 4.5rem; }
 }
 
-/* Utility Classes */
-.hidden {
-    display: none !important;
-}
-
-/* Responsive Design - Mobile (max-width: 600px) */
-@media (max-width: 37.5rem) { /* 600px / 16px = 37.5rem */
-    .container {
-    padding: 0.625rem; /* 10px / 16px = 0.625rem */
-    }
-
-    .header-content {
-    padding-bottom: 0.625rem; /* 10px / 16px = 0.625rem */
-    }
-
-    #post-index-nav {
-    padding: 0.625rem; /* 10px / 16px = 0.625rem */
-    }
-
-    header h1 {
-    font-size: 1.8em;
-    }
-
-    #search-input {
-    width: calc(100% - 1.25rem); /* 20px / 16px = 1.25rem */
-    }
-
-    .carousel-button {
-    padding: 0.5rem 0.75rem; /* 8px / 16px = 0.5rem, 12px / 16px = 0.75rem */
-    font-size: 1.2em;
-    }
-
-    #scroll-to-bottom,
-    #scroll-to-top {
-    width: 2.5rem; /* 40px / 16px = 2.5rem */
-    height: 2.5rem; /* 40px / 16px = 2.5rem */
-    font-size: 1.5em;
-    bottom: 0.9375rem; /* 15px / 16px = 0.9375rem */
-    right: 0.9375rem; /* 15px / 16px = 0.9375rem */
-    }
-
-    #scroll-to-top {
-    bottom: 4.0625rem; /* 65px / 16px = 4.0625rem */
-    }
-}
-
-/* Responsive Design - Desktop (min-width: 601px) */
-@media (min-width: 37.5625rem) { /* 601px / 16px = 37.5625rem */
-    html {
-    font-size: 130%; /* This makes 1rem = 20.8px */
-    }
-    .container {
-    max-width: 50rem; /* This will now be 50 * 20.8px = 1040px */
-    }
-}
+/* Utility */
+.hidden { display: none !important; }
