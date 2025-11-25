@@ -5,16 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const postIndexList = document.getElementById('post-index-list');
     const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
     const scrollToTopBtn = document.getElementById('scroll-to-top');
+    
+    // Fullscreen Elements
     const fullscreenOverlay = document.getElementById('fullscreen-overlay');
     const fullscreenImage = document.getElementById('fullscreen-image');
+    const fullscreenPrevBtn = document.getElementById('fullscreen-prev');
+    const fullscreenNextBtn = document.getElementById('fullscreen-next');
+    const fullscreenCloseBtn = document.getElementById('fullscreen-close');
+    
     const themeToggle = document.getElementById('theme-toggle');
 
     let postsData = []; 
     let scrollButtonTimeout = null;
 
+    // Fullscreen State
+    let currentFullscreenImages = [];
+    let currentFullscreenIndex = 0;
+
     // --- Theme Logic ---
     function initTheme() {
-        // Check localStorage or system preference
         const savedTheme = localStorage.getItem('theme');
         const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -35,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initialize theme immediately
     initTheme();
 
     // --- Helpers ---
@@ -49,22 +57,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function showScrollButtonsWithAutohide() {
         if (scrollButtonTimeout) clearTimeout(scrollButtonTimeout);
 
+        // Show buttons (remove invisible class)
         if (window.scrollY > 300) {
-            scrollToTopBtn.classList.remove('hidden');
+            scrollToTopBtn.classList.remove('invisible');
         } else {
-            scrollToTopBtn.classList.add('hidden');
+            scrollToTopBtn.classList.add('invisible');
         }
 
         const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50;
         if (!isAtBottom) {
-            scrollToBottomBtn.classList.remove('hidden');
+            scrollToBottomBtn.classList.remove('invisible');
         } else {
-            scrollToBottomBtn.classList.add('hidden');
+            scrollToBottomBtn.classList.add('invisible');
         }
 
+        // Autohide (fade out) after 2 seconds
         scrollButtonTimeout = setTimeout(() => {
-            scrollToTopBtn.classList.add('hidden');
-            scrollToBottomBtn.classList.add('hidden');
+            scrollToTopBtn.classList.add('invisible');
+            scrollToBottomBtn.classList.add('invisible');
         }, 2000);
     }
 
@@ -119,6 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const readTime = calculateReadingTime(post.content);
 
+            // Conditional rendering for carousel buttons
+            const showButtons = post.images.length > 1;
+
             postCard.innerHTML = `
                 <h2>${post.title}</h2>
                 <span class="read-time">${readTime}</span>
@@ -127,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="carousel" data-post-id="${post.id}">
                     <img src="" alt="Background" class="carousel-background-image">
                     <img src="" alt="Post Content" class="carousel-image">
-                    <button class="carousel-button prev">&lt;</button>
-                    <button class="carousel-button next">&gt;</button>
+                    ${showButtons ? `<button class="carousel-button prev">&lt;</button>` : ''}
+                    ${showButtons ? `<button class="carousel-button next">&gt;</button>` : ''}
                 </div>
                 ` : ''}
             `;
@@ -150,12 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentImageIndex = 0;
 
         const showImage = (index) => {
-            // Preload next image for smoother transitions
             const nextIndex = (index + 1) % images.length;
             const preloadImg = new Image();
             preloadImg.src = images[nextIndex];
 
-            carouselImage.style.opacity = '0.8'; // subtle fade effect
+            carouselImage.style.opacity = '0.8'; 
             setTimeout(() => {
                 carouselImage.src = images[index];
                 carouselBgImage.src = images[index];
@@ -163,45 +175,110 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 100);
         };
 
-        prevButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-            showImage(currentImageIndex);
-        });
+        // Only attach listeners if buttons exist
+        if (prevButton && nextButton) {
+            prevButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Critical for mobile
+                e.preventDefault(); // Prevent ghost clicks
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                showImage(currentImageIndex);
+            });
 
-        nextButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-            showImage(currentImageIndex);
-        });
+            nextButton.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                e.preventDefault();
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showImage(currentImageIndex);
+            });
+        }
 
-        // Swipe support
+        // Swipe support (Works alongside buttons)
         let touchStartX = 0;
         const carousel = card.querySelector('.carousel');
         
-        carousel.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-        carousel.addEventListener('touchend', e => {
-            const touchEndX = e.changedTouches[0].clientX;
-            if (touchEndX < touchStartX - 50) {
-                currentImageIndex = (currentImageIndex + 1) % images.length;
-                showImage(currentImageIndex);
-            }
-            if (touchEndX > touchStartX + 50) {
-                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-                showImage(currentImageIndex);
-            }
-        });
+        if (images.length > 1) {
+            carousel.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+            carousel.addEventListener('touchend', e => {
+                const touchEndX = e.changedTouches[0].clientX;
+                // Only trigger if swipe is significant (>50px)
+                if (touchEndX < touchStartX - 50) {
+                    currentImageIndex = (currentImageIndex + 1) % images.length;
+                    showImage(currentImageIndex);
+                }
+                if (touchEndX > touchStartX + 50) {
+                    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                    showImage(currentImageIndex);
+                }
+            });
+        }
 
+        // Open Fullscreen
         carouselImage.addEventListener('click', () => {
-            fullscreenImage.src = carouselImage.src;
-            fullscreenOverlay.classList.remove('hidden');
+            openFullscreen(images, currentImageIndex);
         });
 
-        // Initial load
+        // Initialize
         carouselImage.src = images[0];
         carouselBgImage.src = images[0];
     }
 
+    // --- Fullscreen Logic ---
+    function openFullscreen(images, startIndex) {
+        currentFullscreenImages = images;
+        currentFullscreenIndex = startIndex;
+        
+        fullscreenImage.src = images[currentFullscreenIndex];
+        fullscreenOverlay.classList.remove('hidden-overlay');
+
+        // Hide prev/next if only 1 image
+        if (images.length <= 1) {
+            fullscreenPrevBtn.style.display = 'none';
+            fullscreenNextBtn.style.display = 'none';
+        } else {
+            fullscreenPrevBtn.style.display = 'flex';
+            fullscreenNextBtn.style.display = 'flex';
+        }
+    }
+
+    function closeFullscreen() {
+        fullscreenOverlay.classList.add('hidden-overlay');
+        fullscreenImage.src = ""; // Clear src to stop memory leaks/flickers
+    }
+
+    function nextFullscreenImage(e) {
+        if(e) e.stopPropagation();
+        currentFullscreenIndex = (currentFullscreenIndex + 1) % currentFullscreenImages.length;
+        fullscreenImage.src = currentFullscreenImages[currentFullscreenIndex];
+    }
+
+    function prevFullscreenImage(e) {
+        if(e) e.stopPropagation();
+        currentFullscreenIndex = (currentFullscreenIndex - 1 + currentFullscreenImages.length) % currentFullscreenImages.length;
+        fullscreenImage.src = currentFullscreenImages[currentFullscreenIndex];
+    }
+
+    // Fullscreen Event Listeners
+    fullscreenPrevBtn.addEventListener('click', prevFullscreenImage);
+    fullscreenNextBtn.addEventListener('click', nextFullscreenImage);
+    fullscreenCloseBtn.addEventListener('click', closeFullscreen);
+    
+    // Close on background click (but not image click)
+    fullscreenOverlay.addEventListener('click', (e) => {
+        if (e.target === fullscreenOverlay) {
+            closeFullscreen();
+        }
+    });
+
+    // Keyboard support for fullscreen
+    document.addEventListener('keydown', (e) => {
+        if (fullscreenOverlay.classList.contains('hidden-overlay')) return;
+        
+        if (e.key === 'Escape') closeFullscreen();
+        if (e.key === 'ArrowRight') nextFullscreenImage();
+        if (e.key === 'ArrowLeft') prevFullscreenImage();
+    });
+
+    // --- Index Links ---
     function renderPostIndex(posts) {
         postIndexList.innerHTML = '';
         posts.forEach(post => {
@@ -221,6 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Search & Scroll ---
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const filteredPosts = postsData.filter(post =>
@@ -239,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('scroll', showScrollButtonsWithAutohide);
-    fullscreenOverlay.addEventListener('click', () => fullscreenOverlay.classList.add('hidden'));
-
+    
+    // Initial fetch
     fetchAndDisplayPosts();
 });
