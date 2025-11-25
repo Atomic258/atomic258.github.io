@@ -4,26 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atomic's Blog</title>
+  <!-- Import Rounded Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="header-content">
-      <h1>Atomic's Blog</h1>
-      <input type="text" id="search-input" placeholder="Search posts...">
-    </div>
-
-    <!-- Index without left/right buttons -->
-    <nav id="post-index-nav">
-      <ul id="post-index-list">
-        <!-- Post index items will be dynamically loaded here by JavaScript -->
-      </ul>
-    </nav>
-  </header>
+  
+  <!-- Background decorative blobs -->
+  <div class="blob-cont">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
   <main class="container">
+    <header>
+      <div class="header-content">
+        <h1>Atomic's Blog</h1>
+        <div class="search-wrapper">
+            <input type="text" id="search-input" placeholder="Search posts...">
+            <span class="search-icon">🔍</span>
+        </div>
+      </div>
+
+      <nav id="post-index-nav">
+        <span class="nav-label">Quick Jump:</span>
+        <ul id="post-index-list">
+          <!-- Dynamic content -->
+        </ul>
+      </nav>
+    </header>
+
     <section id="post-list">
-      <!-- Post cards will be dynamically loaded here by JavaScript -->
+      <!-- Dynamic content -->
     </section>
   </main>
 
@@ -31,17 +46,9 @@
     <img id="fullscreen-image" src="" alt="Fullscreen Image">
   </div>
 
-  <button id="scroll-to-bottom" title="Scroll to bottom">
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-    </svg>
-  </button>
-
-  <button id="scroll-to-top" title="Scroll to top">
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
-    </svg>
-  </button>
+  <!-- Updated Icons for scroll buttons -->
+  <button id="scroll-to-bottom" title="Scroll to bottom">↓</button>
+  <button id="scroll-to-top" title="Scroll to top">↑</button>
 
   <script src="script.js"></script>
 </body>
