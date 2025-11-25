@@ -4,41 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atomic's Blog</title>
-  <!-- Import Rounded Modern Fonts -->
+  <!-- Rounded, friendly fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  
-  <!-- Background decorative blobs -->
-  <div class="blob-cont">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+
+  <!-- Decorative Background Shapes (Opaque & Soft) -->
+  <div class="shape-bg">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
   </div>
 
   <main class="container">
     <header>
-      <div class="header-content">
-        <h1>Atomic's Blog</h1>
-        <div class="search-wrapper">
-            <input type="text" id="search-input" placeholder="Search posts...">
-            <span class="search-icon">🔍</span>
-        </div>
+      <h1>Atomic's Blog</h1>
+      
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search my updates...">
       </div>
 
       <nav id="post-index-nav">
-        <span class="nav-label">Quick Jump:</span>
+        <span class="nav-label">Jump to:</span>
         <ul id="post-index-list">
-          <!-- Dynamic content -->
+          <!-- Dynamic Links -->
         </ul>
       </nav>
     </header>
 
     <section id="post-list">
-      <!-- Dynamic content -->
+      <!-- Dynamic Posts -->
     </section>
   </main>
 
@@ -46,7 +44,6 @@
     <img id="fullscreen-image" src="" alt="Fullscreen Image">
   </div>
 
-  <!-- Updated Icons for scroll buttons -->
   <button id="scroll-to-bottom" title="Scroll to bottom">↓</button>
   <button id="scroll-to-top" title="Scroll to top">↑</button>
 
