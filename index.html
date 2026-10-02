@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Javelin Vendor Flip — OSRS Shop Profit Calculator</title>
+<meta name="description" content="Work out how many adamant or rune javelins to sell to an OSRS shop before hopping worlds, and the total gold you'll make from a full run.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e6d9b8;
+    --paper-2:#d9c79c;
+    --paper-3:#cbb684;
+    --earth:#2b2419;
+    --earth-2:#362d20;
+    --ink:#241c10;
+    --ink-soft:#5b4c33;
+    --ink-mute:#7a6746;
+    --light:#f0e6cb;
+    --light-mute:#b8a681;
+    --accent:#ff981f;
+    --accent-ink:#8a4b12;
+    --profit:#1f6b2f;
+    --loss:#a33517;
+    --bevel-l:#f6ecc9;
+    --bevel-d:#8a7550;
+    --line:#b9a679;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Pixelify Sans", Georgia, serif;
+    font-size:17px;
+    line-height:1.62;
+    font-variant-numeric:tabular-nums;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{margin:0;font-weight:700;text-wrap:balance}
+  p{margin:0 0 1em}
+  p:last-child{margin-bottom:0}
+  a{color:var(--accent-ink);text-decoration:underline;text-underline-offset:3px}
+  a:hover{color:var(--loss)}
+  :focus-visible{outline:3px solid var(--accent-ink);outline-offset:2px}
+  .band-dark :focus-visible{outline-color:var(--accent)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  .lab{font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;line-height:1.7}
+  .num{font-variant-numeric:tabular-nums}
+  .band-dark{background:var(--earth);color:var(--light)}
+  .band-dark .lab{color:var(--light-mute)}
+  .measure{max-width:34rem}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:var(--earth);
+    border-bottom:2px solid var(--bevel-d);
+  }
+  .nav{display:flex;align-items:center;gap:18px;padding:12px 22px;max-width:1120px;margin:0 auto;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;color:var(--light);text-decoration:none}
+  .brand:hover{color:var(--accent)}
+  .brand-name{font-size:19px;letter-spacing:.02em}
+  .nav-links{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .nav-links a{
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--light-mute);text-decoration:none;padding:8px 12px;border:2px solid transparent;
+  }
+  .nav-links a:hover{color:var(--earth);background:var(--accent);border-color:var(--bevel-d)}
+  .ico{width:38px;height:13px;display:block}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 0}
+  .hero-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:40px;align-items:center}
+  .hero h1{font-size:clamp(2.35rem,5.4vw,4.15rem);line-height:1.03;letter-spacing:-.01em}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .standfirst{font-size:1.18rem;line-height:1.6;color:var(--light);margin-top:22px;max-width:33rem;text-wrap:pretty}
+  .hero-art{display:flex;justify-content:center}
+  .hero-art svg{width:100%;max-width:300px;height:auto}
+  .strip{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    margin-top:56px;border-top:2px solid var(--bevel-d);
+  }
+  .stat{padding:22px 20px 26px;border-left:1px solid rgba(240,230,203,.18)}
+  .stat:first-child{border-left:0;padding-left:0}
+  .stat .v{font-size:2.15rem;line-height:1.1;font-weight:700;color:var(--light)}
+  .stat .k{margin-top:6px}
+
+  /* ---------- sections ---------- */
+  section{padding:74px 0}
+  .sec-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .sec-head h2{font-size:clamp(1.75rem,3.1vw,2.5rem);letter-spacing:-.01em}
+  .sec-intro{max-width:36rem;color:var(--ink-soft);text-wrap:pretty}
+  .band-dark .sec-intro{color:var(--light-mute)}
+
+  /* ---------- panels & controls ---------- */
+  .bevel{
+    background:var(--paper-2);
+    border-top:3px solid var(--bevel-l);border-left:3px solid var(--bevel-l);
+    border-right:3px solid var(--bevel-d);border-bottom:3px solid var(--bevel-d);
+  }
+  .inset{
+    background:var(--paper);
+    border-top:3px solid var(--bevel-d);border-left:3px solid var(--bevel-d);
+    border-right:3px solid var(--bevel-l);border-bottom:3px solid var(--bevel-l);
+  }
+  .calc-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;margin-top:30px;align-items:start}
+  .controls{padding:26px}
+  .field{margin-bottom:22px}
+  .field label{display:block;margin-bottom:8px;color:var(--ink-soft)}
+  .field .hint{font-size:14px;color:var(--ink-mute);margin-top:6px;line-height:1.5}
+  .field input[type=number], .field input[type=text]{
+    width:100%;font-family:"Pixelify Sans",serif;font-size:22px;font-weight:600;color:var(--ink);
+    background:var(--paper);padding:11px 13px;
+    border-top:3px solid var(--bevel-d);border-left:3px solid var(--bevel-d);
+    border-right:3px solid var(--bevel-l);border-bottom:3px solid var(--bevel-l);
+    border-radius:0;
+  }
+  .seg{display:flex;border:2px solid var(--bevel-d)}
+  .seg button{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:9px;
+    font-family:"Pixelify Sans",serif;font-size:16px;font-weight:600;color:var(--ink-soft);
+    background:var(--paper-3);padding:12px 8px;cursor:pointer;border:0;border-left:2px solid var(--bevel-d);
+    border-radius:0;
+  }
+  .seg button:first-child{border-left:0}
+  .seg button:hover{background:var(--paper-2)}
+  .seg button[aria-pressed=true]{background:var(--earth);color:var(--accent)}
+  .seg button[aria-pressed=true] .ico{color:var(--accent)}
+  .seg .ico{width:30px;height:11px;color:var(--ink-mute)}
+
+  /* slider */
+  .slider-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .slider-val{font-size:1.55rem;font-weight:700;color:var(--accent-ink)}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer;margin:2px 0;
+  }
+  input[type=range]::-webkit-slider-runnable-track{
+    height:12px;background:var(--paper-3);
+    border-top:3px solid var(--bevel-d);border-left:3px solid var(--bevel-d);
+    border-right:3px solid var(--bevel-l);border-bottom:3px solid var(--bevel-l);
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:26px;height:30px;margin-top:-12px;
+    background:var(--accent-ink);
+    border-top:3px solid var(--bevel-l);border-left:3px solid var(--bevel-l);
+    border-right:3px solid var(--earth);border-bottom:3px solid var(--earth);
+  }
+  input[type=range]::-moz-range-track{
+    height:12px;background:var(--paper-3);border:3px solid var(--bevel-d);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px;height:26px;border-radius:0;background:var(--accent-ink);
+    border-top:3px solid var(--bevel-l);border-left:3px solid var(--bevel-l);
+    border-right:3px solid var(--earth);border-bottom:3px solid var(--earth);
+  }
+  .ticks{display:flex;justify-content:space-between;color:var(--ink-mute)}
+  .ticks span{width:25%;text-align:center}
+  .ticks span:first-child{text-align:left}
+  .ticks span:last-child{text-align:right}
+
+  .assume{margin-top:26px;padding:18px 20px}
+  .assume-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:12px}
+  .assume-grid label{display:block;color:var(--ink-soft);margin-bottom:6px}
+  .assume-grid input{
+    width:100%;font-family:"Pixelify Sans",serif;font-size:17px;color:var(--ink);
+    background:var(--paper);padding:8px 10px;border-radius:0;
+    border-top:3px solid var(--bevel-d);border-left:3px solid var(--bevel-d);
+    border-right:3px solid var(--bevel-l);border-bottom:3px solid var(--bevel-l);
+  }
+  .btn{
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    background:var(--paper-3);color:var(--ink);cursor:pointer;padding:11px 16px;border-radius:0;
+    border-top:3px solid var(--bevel-l);border-left:3px solid var(--bevel-l);
+    border-right:3px solid var(--bevel-d);border-bottom:3px solid var(--bevel-d);
+  }
+  .btn:hover{background:var(--paper-2)}
+  .btn:active{border-top-color:var(--bevel-d);border-left-color:var(--bevel-d);border-right-color:var(--bevel-l);border-bottom-color:var(--bevel-l)}
+  .btn-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px}
+
+  /* results */
+  .results{padding:26px}
+  .res-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--bevel-d);padding-bottom:12px;margin-bottom:4px}
+  .res-title h3{font-size:1.35rem}
+  .rowline{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .rowline .k{color:var(--ink-soft);font-size:15px}
+  .rowline .v{font-size:1.22rem;font-weight:600}
+  .rowline .v.neg{color:var(--loss)}
+  .rowline .v.pos{color:var(--profit)}
+  .big{padding:18px 0 6px}
+  .big .v{font-size:clamp(2.4rem,5vw,3.4rem);line-height:1.05;font-weight:700;color:var(--accent-ink)}
+  .verdict{margin-top:18px;padding:15px 16px;background:var(--earth);color:var(--light)}
+  .verdict .lab{color:var(--accent)}
+  .verdict p{margin:6px 0 0;font-size:15.5px;line-height:1.55}
+  .status{margin-top:14px;color:var(--ink-mute);min-height:1.5em}
+
+  .chart-wrap{margin-top:34px}
+  .chart-box{padding:22px 20px 12px}
+  #chart{width:100%;height:auto;display:block}
+  #chart text{font-family:"Silkscreen",monospace;font-size:11px;fill:var(--ink-soft);letter-spacing:.05em}
+  #chart text.chip-t{fill:var(--accent)}
+  figcaption{margin-top:12px;font-size:14px;color:var(--ink-mute);line-height:1.6}
+  figcaption b{color:var(--ink-soft);font-weight:600}
+
+  /* ---------- comparison ---------- */
+  .cmp-scroll{overflow-x:auto;margin-top:28px;border-top:2px solid var(--bevel-d)}
+  table.cmp{width:100%;min-width:940px;border-collapse:collapse}
+  table.cmp th{
+    text-align:right;padding:14px 14px 12px;border-bottom:2px solid var(--bevel-d);
+    font-family:"Silkscreen",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--light-mute);
+    font-weight:400;white-space:nowrap;
+  }
+  table.cmp th:first-child{text-align:left}
+  table.cmp th button{
+    background:none;border:0;padding:2px 0;cursor:pointer;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;
+  }
+  table.cmp th button:hover{color:var(--accent)}
+  table.cmp th button span{opacity:.55;margin-left:5px}
+  table.cmp td{
+    text-align:right;padding:16px 14px;border-bottom:1px solid rgba(240,230,203,.16);
+    color:var(--light);font-size:1.05rem;white-space:nowrap;
+  }
+  table.cmp td:first-child{text-align:left}
+  table.cmp tr:hover td{background:rgba(240,230,203,.06)}
+  table.cmp tr.win td{background:rgba(255,152,31,.12)}
+  .item-cell{display:flex;align-items:center;gap:11px}
+  .item-cell .ico{width:32px;height:11px;color:var(--light-mute)}
+  .badge{
+    display:inline-block;font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--accent);color:var(--earth);padding:4px 7px;margin-left:10px;vertical-align:middle;
+  }
+  .badge.alt{background:var(--paper-3);color:var(--earth)}
+  .bar{height:12px;background:rgba(240,230,203,.14);margin-top:7px;min-width:120px}
+  .bar i{display:block;height:100%;background:var(--accent)}
+  .bar-label{font-size:13px;color:var(--light-mute);margin-top:5px}
+
+  /* ---------- method ---------- */
+  .method-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;margin-top:30px;align-items:start}
+  .formula{padding:22px 24px;font-size:1.05rem;line-height:2}
+  .formula .eq{display:block;font-size:1.15rem;font-weight:700;color:var(--accent-ink);margin:6px 0 2px}
+  .notes{counter-reset:n;list-style:none;padding:0;margin:0}
+  .notes li{position:relative;padding:14px 0 14px 42px;border-bottom:1px solid var(--line);color:var(--ink-soft)}
+  .notes li:first-child{padding-top:0}
+  .notes li::before{
+    counter-increment:n;content:counter(n);
+    position:absolute;left:0;top:14px;
+    font-family:"Silkscreen",monospace;font-size:10px;color:var(--paper);
+    background:var(--ink-soft);width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  }
+  .notes li:first-child::before{top:0}
+  .notes b{color:var(--ink)}
+  table.mini{width:100%;border-collapse:collapse;margin-top:14px}
+  table.mini th{
+    text-align:right;padding:10px 12px;border-bottom:2px solid var(--bevel-d);
+    font-family:"Silkscreen",monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:400;
+  }
+  table.mini th:first-child, table.mini td:first-child{text-align:left}
+  table.mini td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:1rem}
+  .caveat{margin-top:22px;padding:16px 18px;border-left:5px solid var(--loss);background:var(--paper-2);font-size:15px;color:var(--ink-soft)}
+
+  /* ---------- footer ---------- */
+  footer{padding:44px 0 52px}
+  .foot{display:flex;justify-content:space-between;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .foot p{color:var(--light-mute);font-size:15px;max-width:44rem;line-height:1.7}
+  .foot a{color:var(--accent)}
+  .foot a:hover{color:var(--light)}
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 940px){
+    .hero-grid{grid-template-columns:1fr}
+    .hero-art{order:-1;justify-content:flex-start}
+    .hero-art svg{max-width:210px}
+    .calc-grid, .method-grid{grid-template-columns:1fr}
+    .strip{grid-template-columns:repeat(2,1fr)}
+    .stat{border-left:0;border-top:1px solid rgba(240,230,203,.18);padding-left:0}
+    .stat:first-child{border-top:0}
+  }
+  @media (max-width: 620px){
+    body{font-size:16px}
+    section{padding:52px 0}
+    .hero{padding-top:42px}
+    .assume-grid{grid-template-columns:1fr}
+    .strip{grid-template-columns:1fr}
+    .res-title{flex-direction:column;gap:2px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *{transition:none !important}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="javelin" viewBox="0 0 48 16">
+    <polygon points="38,2 48,8 38,14" fill="currentColor"/>
+    <rect x="10" y="7" width="29" height="2" fill="currentColor"/>
+    <rect x="8" y="5" width="3" height="6" fill="currentColor"/>
+    <polygon points="13,7 3,1 7,8 3,15 13,9" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="#top">
+      <svg class="ico" aria-hidden="true"><use href="#javelin"/></svg>
+      <span class="brand-name">Javelin Vendor Flip</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#calculator">Calculator</a>
+      <a href="#compare">Compare</a>
+      <a href="#method">Method</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero band-dark">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <p class="lab">OSRS shop calculator &middot; adamant &amp; rune javelins</p>
+          <h1>How many javelins should you sell before you <em>hop worlds</em>?</h1>
+          <p class="standfirst">The vendor pays 96&nbsp;gp for your first adamant javelin and 240&nbsp;gp for your first rune one — but every javelin you sell on a world knocks 0.1% off the base value of the next. This calculator prices out a full run and finds the batch size that leaves you with the most gold.</p>
+        </div>
+        <div class="hero-art">
+          <svg viewBox="0 0 260 200" role="img" aria-label="Illustration of two crossed rune javelins">
+            <g>
+              <polygon points="212,26 252,44 216,52 202,38" fill="#d8c79e"/>
+              <rect x="58" y="66" width="152" height="9" fill="#d8c79e" transform="rotate(-24 58 66)"/>
+              <polygon points="44,116 22,104 36,118 20,132 46,122" fill="#8a7550"/>
+              <rect x="40" y="112" width="10" height="14" fill="#8a7550" transform="rotate(-24 40 112)"/>
+            </g>
+            <g>
+              <polygon points="60,30 18,50 56,58 72,42" fill="#d8c79e"/>
+              <rect x="76" y="40" width="152" height="9" fill="#c9b68a" transform="rotate(22 76 40)"/>
+              <polygon points="232,124 252,116 238,128 252,140 228,132" fill="#8a7550"/>
+              <rect x="222" y="120" width="10" height="14" fill="#8a7550" transform="rotate(22 222 120)"/>
+            </g>
+            <rect x="20" y="172" width="220" height="4" fill="#5b4c33"/>
+            <rect x="20" y="182" width="140" height="4" fill="#5b4c33"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div class="stat">
+          <div class="v num">96 / 240 gp</div>
+          <div class="k lab">Shop pays for first addy / rune</div>
+        </div>
+        <div class="stat">
+          <div class="v num">-0.1%</div>
+          <div class="k lab">Base value lost per javelin sold</div>
+        </div>
+        <div class="stat">
+          <div class="v num">57 / 135 gp</div>
+          <div class="k lab">GE price used as the default buy-in</div>
+        </div>
+        <div class="stat">
+          <div class="v num">500</div>
+          <div class="k lab">Stock in every fresh world</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CALCULATOR ================= -->
+  <section id="calculator">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="lab">Step 1 &middot; your run</p>
+        <h2>Price your run</h2>
+      </div>
+      <p class="sec-intro">Set what you paid per javelin, how many you have to sell, and how many you want to dump on one world before hopping. Everything below recalculates as you type.</p>
+
+      <div class="calc-grid">
+        <!-- controls -->
+        <div>
+          <div class="controls bevel">
+            <div class="field">
+              <label class="lab" id="item-label">Javelin</label>
+              <div class="seg" role="group" aria-labelledby="item-label">
+                <button type="button" data-item="addy" aria-pressed="true">
+                  <svg class="ico" aria-hidden="true"><use href="#javelin"/></svg>
+                  Adamant
+                </button>
+                <button type="button" data-item="rune" aria-pressed="false">
+                  <svg class="ico" aria-hidden="true"><use href="#javelin"/></svg>
+                  Rune
+                </button>
+              </div>
+              <p class="hint" id="item-hint">Shop sells at 160 gp (100%), buys at 96 gp (60%). Stock 500, restocks 1 item every 48s.</p>
+            </div>
+
+            <div class="field">
+              <label class="lab" for="buy">Your purchase price (gp each)</label>
+              <input type="number" id="buy" min="0" step="1" value="57" inputmode="numeric">
+              <p class="hint">What each javelin actually cost you on the Grand Exchange.</p>
+            </div>
+
+            <div class="field">
+              <label class="lab" for="qty">Total javelins to sell</label>
+              <input type="number" id="qty" min="1" step="100" value="11000" inputmode="numeric">
+              <p class="hint">The size of your whole trip — 11,000, 50,000, whatever the tab holds.</p>
+            </div>
+
+            <div class="field" style="margin-bottom:6px">
+              <div class="slider-row">
+                <label class="lab" for="batch" style="margin:0">Sell per world before hopping</label>
+                <div class="slider-val num" id="batch-val">200 javelins</div>
+              </div>
+              <input type="range" id="batch" min="50" max="200" step="50" value="200" aria-describedby="batch-val">
+              <div class="ticks lab" aria-hidden="true"><span>50</span><span>100</span><span>150</span><span>200</span></div>
+            </div>
+          </div>
+
+          <div class="assume inset">
+            <p class="lab" style="color:var(--ink-mute)">Assumptions you can change</p>
+            <div class="assume-grid">
+              <div>
+                <label class="lab" for="change">Price drop per item (%)</label>
+                <input type="number" id="change" min="0" max="5" step="0.1" value="0.1" inputmode="decimal">
+              </div>
+              <div>
+                <label class="lab" for="hop">Seconds per world hop</label>
+                <input type="number" id="hop" min="1" step="1" value="20" inputmode="numeric">
+              </div>
+              <div>
+                <label class="lab" for="action">Seconds per sell-X action</label>
+                <input type="number" id="action" min="1" step="1" value="4" inputmode="numeric">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button type="button" class="btn" id="reset">Reset to defaults</button>
+              <span class="lab" style="color:var(--ink-mute)">Sell-X moves 50 javelins per click</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- results -->
+        <div>
+          <div class="results bevel">
+            <div class="res-title">
+              <h3>This world</h3>
+              <p class="lab" style="color:var(--ink-mute);margin:0" id="world-tag">200 sold &middot; price 240 &rarr; 160 gp</p>
+            </div>
+            <div class="rowline"><span class="k">Average price the shop pays</span><span class="v num" id="r-avg">—</span></div>
+            <div class="rowline"><span class="k">Revenue from one world</span><span class="v num" id="r-revworld">—</span></div>
+            <div class="rowline"><span class="k">Cost of those javelins</span><span class="v num" id="r-costworld">—</span></div>
+            <div class="rowline"><span class="k">Profit from one world</span><span class="v num pos" id="r-profitworld">—</span></div>
+
+            <div class="res-title" style="margin-top:26px">
+              <h3>Whole run</h3>
+              <p class="lab" style="color:var(--ink-mute);margin:0" id="run-tag">11,000 javelins</p>
+            </div>
+            <div class="rowline"><span class="k">Worlds to hop through</span><span class="v num" id="r-worlds">—</span></div>
+            <div class="rowline"><span class="k">Total revenue</span><span class="v num" id="r-rev">—</span></div>
+            <div class="rowline"><span class="k">Total cost</span><span class="v num" id="r-cost">—</span></div>
+            <div class="rowline"><span class="k">Estimated time</span><span class="v num" id="r-time">—</span></div>
+            <div class="rowline"><span class="k">Gold per hour</span><span class="v num pos" id="r-gph">—</span></div>
+
+            <div class="big">
+              <p class="lab" style="color:var(--ink-mute);margin:0 0 4px">Total profit</p>
+              <div class="v num" id="r-total">—</div>
+            </div>
+
+            <div class="verdict">
+              <p class="lab">Verdict</p>
+              <p id="verdict">—</p>
+            </div>
+          </div>
+          <p class="status lab" id="status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <!-- chart -->
+      <figure class="chart-wrap">
+        <div class="chart-box inset">
+          <svg id="chart" viewBox="0 0 720 360" role="img" aria-labelledby="chart-title chart-desc">
+            <title id="chart-title">Cumulative gold from one shop versus the number of javelins sold on that world</title>
+            <desc id="chart-desc">A rising revenue curve that flattens as the shop price falls, compared against a straight cost line.</desc>
+          </svg>
+        </div>
+        <figcaption>
+          <b>Figure 1</b> — Cumulative gold from one world, before hopping. The rising curve is what the shop pays you as you sell more javelins on the same world; the dashed straight line is what those javelins cost you. The gap between them is profit, and it stops widening where the two lines flatten together.
+          <br><span class="lab">Source: shop table — sells at 100%, buys at 60%, change per 0.1% of base value per item sold.</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= COMPARE ================= -->
+  <section id="compare" class="band-dark">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="lab">Step 2 &middot; the trade-off</p>
+        <h2>Four batch sizes, one verdict</h2>
+      </div>
+      <p class="sec-intro">Selling fewer javelins per world keeps the price high, but it costs you more hops. Click any column heading to sort — the winners for your current numbers are marked on the rows.</p>
+
+      <div class="cmp-scroll">
+        <table class="cmp">
+          <thead>
+            <tr>
+              <th><button type="button" data-sort="k">Item <span>&#9650;</span></button></th>
+              <th><button type="button" data-sort="avg">Avg price ea <span></span></button></th>
+              <th><button type="button" data-sort="revWorld">Revenue / world <span></span></button></th>
+              <th><button type="button" data-sort="profitWorld">Profit / world <span></span></button></th>
+              <th><button type="button" data-sort="worlds">Worlds <span></span></button></th>
+              <th><button type="button" data-sort="total">Total profit <span></span></button></th>
+              <th><button type="button" data-sort="time">Est. time <span></span></button></th>
+              <th><button type="button" data-sort="gph">GP / hour <span></span></button></th>
+            </tr>
+          </thead>
+          <tbody id="cmp-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= METHOD ================= -->
+  <section id="method">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="lab">Step 3 &middot; the workings</p>
+        <h2>How the numbers are made</h2>
+      </div>
+      <p class="sec-intro">No black box. Every figure on this page comes from the shop's own pricing rule and the two inputs above.</p>
+
+      <div class="method-grid">
+        <div>
+          <div class="formula inset">
+            <p class="lab" style="color:var(--ink-mute);margin:0">Price paid for the i-th javelin sold on a world</p>
+            <span class="eq">price(i) = &#8970; base &times; (60% &minus; 0.1% &times; i) &#8971;</span>
+            <p class="lab" style="color:var(--ink-mute);margin:0">Where</p>
+            <span class="eq" style="font-size:1rem">i = 0 for the first javelin, 1 for the second, and so on</span>
+            <span class="eq" style="font-size:1rem">base = 160 gp (adamant) or 400 gp (rune)</span>
+            <p style="margin-top:14px;color:var(--ink-soft)">Revenue on a world is the sum of that price over the batch. Profit is revenue minus what you paid, and a fresh world resets <em>i</em> back to zero.</p>
+          </div>
+
+          <table class="mini">
+            <caption class="lab" style="text-align:left;color:var(--ink-mute);padding-bottom:8px">The shop table behind the maths</caption>
+            <thead>
+              <tr><th>Item</th><th>Sells at</th><th>Buys at</th><th>GE price</th><th>Restock</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Adamant javelin</td><td class="num">160</td><td class="num">96</td><td class="num">57</td><td>48s (80t)</td></tr>
+              <tr><td>Rune javelin</td><td class="num">400</td><td class="num">240</td><td class="num">135</td><td>1m (100t)</td></tr>
+            </tbody>
+          </table>
+
+          <div class="caveat">
+            <p class="lab" style="color:var(--loss);margin:0 0 6px">Heads up</p>
+            <p id="breakeven">—</p>
+          </div>
+        </div>
+
+        <div>
+          <ol class="notes">
+            <li><b>World hopping is the reset.</b> Each world starts with 500 javelins in stock and pays full price again, while waiting only returns 1 adamant javelin every 48s (1 rune every 1m). Hopping beats waiting by a mile.</li>
+            <li><b>Prices round down to whole gp.</b> The shop never pays a fraction of a coin, so each step is floored before it's added up.</li>
+            <li><b>Time is yours to set.</b> Gold per hour uses the seconds-per-hop and seconds-per-sell-X values you entered, and assumes one sell-X click moves 50 javelins.</li>
+            <li><b>The last world can be partial.</b> If your total doesn't divide evenly by the batch size, the final world sells whatever is left at full starting price.</li>
+            <li><b>GE prices move.</b> The default buy-in is the shop table's listed GE price, but the margin is only real if <em>your</em> purchase price is entered — that single number swings the verdict more than anything else.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="band-dark">
+  <div class="wrap foot">
+    <p><b style="color:var(--light)">Javelin Vendor Flip</b> — an unofficial Old School RuneScape shop calculator for world-hopping javelin runs. Shop values (sells at 100%, buys at 60%, change per 0.1%) come from the javelin shop table; Grand Exchange prices change constantly, so enter what you actually paid. Not affiliated with Jagex Ltd.</p>
+    <p><a href="#top">Back to top</a></p>
+  </div>
+</footer>
+
+<script>
+  /* ---------------- data from the shop table ---------------- */
+  const DATA = {
+    addy: { label:'Adamant javelin', base:160, shopBuy:96, ge:57, stock:500, restock:'48s (80t)', restockSec:48 },
+    rune: { label:'Rune javelin',    base:400, shopBuy:240, ge:135, stock:500, restock:'1m (100t)', restockSec:60 }
+  };
+  const BATCHES = [50, 100, 150, 200];
+  const CHUNK = 50; // javelins moved per sell-X action
+
+  const state = {
+    item: 'addy',
+    buy: 57,
+    n: 11000,
+    batch: 200,
+    change: 0.1,   // percent of base value lost per javelin sold
+    hop: 20,       // seconds per world hop
+    action: 4,     // seconds per sell-X action
+    sortKey: 'k',
+    sortDir: 1
+  };
+
+  /* ---------------- helpers ---------------- */
+  const fmt = n => Math.round(n).toLocaleString('en-CA');
+  const fmtCompact = n => {
+    const v = Math.round(n);
+    if (Math.abs(v) >= 1000) return (v / 1000).toFixed(Math.abs(v) >= 10000 ? 0 : 1).replace('.0', '') + 'k';
+    return String(v);
+  };
+  const fmtTime = sec => {
+    if (!isFinite(sec) || sec <= 0) return '—';
+    const m = Math.round(sec / 60);
+    return m < 60 ? m + 'm' : Math.floor(m / 60) + 'h ' + (m % 60) + 'm';
+  };
+
+  function priceAt(i) {
+    const item = DATA[state.item];
+    return Math.max(0, Math.floor(item.base * (0.6 - (state.change / 100) * i)));
+  }
+  function revenue(k) {
+    let s = 0;
+    for (let i = 0; i < k; i++) s += priceAt(i);
+    return s;
+  }
+  function planFor(k) {
+    const n = Math.max(0, Math.floor(state.n));
+    const full = Math.floor(n / k);
+    const rem = n % k;
+    const revWorld = revenue(k);
+    const revTotal = full * revWorld + revenue(rem);
+    const worlds = full + (rem ? 1 : 0);
+    const actions = full * (k / CHUNK) + (rem ? Math.ceil(rem / CHUNK) : 0);
+    const time = worlds * state.hop + actions * state.action;
+    const cost = n * state.buy;
+    const total = revTotal - cost;
+    return {
+      k, n,
+      avg: n ? revTotal / n : 0,
+      revWorld,
+      costWorld: k * state.buy,
+      profitWorld: revWorld - k * state.buy,
+      worlds, revTotal, cost, total, time,
+      gph: time > 0 ? total / (time / 3600) : 0
+    };
+  }
+  function breakevenIndex() {
+    for (let i = 0; i < 20000; i++) if (priceAt(i) < state.buy) return i;
+    return null;
+  }
+
+  /* ---------------- chart ---------------- */
+  function drawChart() {
+    const svg = document.getElementById('chart');
+    const item = DATA[state.item];
+    const W = 720, H = 360, L = 84, R = 24, T = 26, B = 66;
+    const pw = W - L - R, ph = H - T - B;
+    const maxI = 200;
+    const yMax = Math.max(revenue(maxI), state.buy * maxI, 1) * 1.08;
+    const X = i => L + (i / maxI) * pw;
+    const Y = v => T + ph - (v / yMax) * ph;
+    let g = '';
+
+    for (let t = 0; t <= 4; t++) {
+      const v = yMax * t / 4, y = Y(v);
+      g += '<line x1="' + L + '" y1="' + y + '" x2="' + (W - R) + '" y2="' + y + '" stroke="#b9a679" stroke-width="1"/>';
+      g += '<text x="' + (L - 12) + '" y="' + (y + 4) + '" text-anchor="end">' + fmtCompact(v) + '</text>';
+    }
+    for (const i of [0, 50, 100, 150, 200]) {
+      g += '<line x1="' + X(i) + '" y1="' + (T + ph) + '" x2="' + X(i) + '" y2="' + (T + ph + 7) + '" stroke="#5b4c33" stroke-width="1"/>';
+      g += '<text x="' + X(i) + '" y="' + (T + ph + 24) + '" text-anchor="middle">' + i + '</text>';
+    }
+    g += '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T + ph) + '" stroke="#5b4c33" stroke-width="2"/>';
+    g += '<line x1="' + L + '" y1="' + (T + ph) + '" x2="' + (W - R) + '" y2="' + (T + ph) + '" stroke="#5b4c33" stroke-width="2"/>';
+    g += '<text transform="translate(22,' + (T + ph / 2) + ') rotate(-90)" text-anchor="middle">CUMULATIVE GP &#183; ONE WORLD</text>';
+    g += '<text x="' + (L + pw / 2) + '" y="' + (H - 10) + '" text-anchor="middle">JAVELINS SOLD ON ONE WORLD</text>';
+
+    // cost line
+    g += '<line x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(maxI) + '" y2="' + Y(state.buy * maxI) + '" stroke="#1f6b2f" stroke-width="2" stroke-dasharray="7 5"/>';
+    // revenue curve
+    let pts = [];
+    for (let i = 0; i <= maxI; i += 5) pts.push(X(i).toFixed(1) + ',' + Y(revenue(i)).toFixed(1));
+    g += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="#8a4b12" stroke-width="3"/>';
+    // batch markers
+    for (const k of BATCHES) {
+      const sel = k === state.batch;
+      g += '<rect x="' + (X(k) - 5) + '" y="' + (Y(revenue(k)) - 5) + '" width="10" height="10" fill="' + (sel ? '#a33517' : '#8a4b12') + '" stroke="#e6d9b8" stroke-width="2"/>';
+    }
+    // selected guide + chip
+    const k = state.batch, xr = X(k), yr = Y(revenue(k));
+    g += '<line x1="' + xr + '" y1="' + yr + '" x2="' + xr + '" y2="' + (T + ph) + '" stroke="#a33517" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    const label = k + ' sold \u00b7 ' + fmt(revenue(k)) + ' gp';
+    const chipW = label.length * 7.6 + 20;
+    let cx = xr + 14;
+    if (cx + chipW > W - R) cx = xr - chipW - 14;
+    const cy = Math.max(T + 6, yr - 34);
+    g += '<rect x="' + cx + '" y="' + cy + '" width="' + chipW + '" height="26" fill="#2b2419"/>';
+    g += '<text class="chip-t" x="' + (cx + 10) + '" y="' + (cy + 18) + '">' + label + '</text>';
+    // legend
+    g += '<rect x="' + (L + 12) + '" y="' + (T + 10) + '" width="18" height="5" fill="#8a4b12"/>';
+    g += '<text x="' + (L + 38) + '" y="' + (T + 18) + '">WHAT THE SHOP PAYS</text>';
+    g += '<line x1="' + (L + 12) + '" y1="' + (T + 34) + '" x2="' + (L + 30) + '" y2="' + (T + 34) + '" stroke="#1f6b2f" stroke-width="2" stroke-dasharray="5 4"/>';
+    g += '<text x="' + (L + 38) + '" y="' + (T + 38) + '">WHAT THEY COST YOU</text>';
+
+    svg.innerHTML = '<title id="chart-title">Cumulative gold from one shop versus the number of javelins sold on that world</title>' +
+      '<desc id="chart-desc">A rising revenue curve that flattens as the shop price falls, compared against a straight cost line.</desc>' + g;
+  }
+
+  /* ---------------- results panel ---------------- */
+  function renderResults() {
+    const item = DATA[state.item];
+    const p = planFor(state.batch);
+    const ok = p.n > 0;
+    const first = priceAt(0), last = priceAt(state.batch - 1);
+
+    document.getElementById('item-hint').textContent =
+      'Shop sells at ' + item.base + ' gp (100%), buys at ' + item.shopBuy + ' gp (60%). Stock ' + item.stock + ', restocks 1 item every ' + item.restock + '.';
+    document.getElementById('batch-val').textContent = state.batch + ' javelins';
+    document.getElementById('world-tag').textContent = state.batch + ' sold \u00b7 price ' + first + ' \u2192 ' + last + ' gp';
+    document.getElementById('run-tag').textContent = ok ? fmt(p.n) + ' ' + item.label.toLowerCase() + 's' : 'no quantity set';
+
+    const set = (id, val, cls) => {
+      const el = document.getElementById(id);
+      el.textContent = val;
+      el.classList.remove('neg', 'pos');
+      if (cls) el.classList.add(cls);
+    };
+    set('r-avg', ok ? fmt(p.avg) + ' gp' : '—');
+    set('r-revworld', fmt(p.revWorld) + ' gp');
+    set('r-costworld', fmt(p.costWorld) + ' gp');
+    set('r-profitworld', fmt(p.profitWorld) + ' gp', p.profitWorld >= 0 ? 'pos' : 'neg');
+    set('r-worlds', ok ? fmt(p.worlds) : '—');
+    set('r-rev', ok ? fmt(p.revTotal) + ' gp' : '—');
+    set('r-cost', ok ? fmt(p.cost) + ' gp' : '—');
+    set('r-time', ok ? fmtTime(p.time) : '—');
+    set('r-gph', ok ? fmt(p.gph) + ' gp' : '—', p.gph >= 0 ? 'pos' : 'neg');
+    set('r-total', ok ? fmt(p.total) + ' gp' : '—', p.total >= 0 ? 'pos' : 'neg');
+
+    // verdict from all four options
+    const plans = BATCHES.map(planFor);
+    const bestGp = plans.reduce((a, b) => (b.total > a.total ? b : a));
+    const bestRate = plans.reduce((a, b) => (b.gph > a.gph ? b : a));
+    const v = document.getElementById('verdict');
+    if (!ok) {
+      v.textContent = 'Enter how many javelins you plan to sell and I\u2019ll name the best batch size.';
+    } else if (bestGp.k === bestRate.k) {
+      v.innerHTML = '<b style="color:var(--accent)">Sell ' + bestGp.k + ' per world.</b> It wins on both counts: ' + fmt(bestGp.total) + ' gp total and ' + fmt(bestGp.gph) + ' gp per hour across ' + fmt(bestGp.worlds) + ' worlds.';
+    } else {
+      v.innerHTML = '<b style="color:var(--accent)">Best gold per hour: ' + bestRate.k + ' per world</b> — ' + fmt(bestRate.gph) + ' gp/h, ' + fmt(bestRate.total) + ' gp total. ' +
+        '<b style="color:var(--accent)">Most total gold: ' + bestGp.k + ' per world</b> — ' + fmt(bestGp.total) + ' gp, but ' + fmt(bestGp.worlds) + ' hops for ' + fmtTime(bestGp.time) + '.';
+    }
+
+    // breakeven warning
+    const be = breakevenIndex();
+    const bEl = document.getElementById('breakeven');
+    if (be === null) {
+      bEl.textContent = 'At your purchase price the shop never pays you less than you paid — but the margin per javelin keeps thinning the more you sell on one world.';
+    } else if (be < 200) {
+      bEl.innerHTML = 'Careful: within a single 200-javelin world, the shop drops below your purchase price at <b>javelin #' + (be + 1) + '</b>. Anything past that point is sold at a loss.';
+    } else {
+      bEl.innerHTML = 'Every javelin in a 200-lot still sells above your purchase price. The shop only pays less than ' + fmt(state.buy) + ' gp from <b>javelin #' + (be + 1) + '</b> on the same world — well past any batch on this page.';
+    }
+
+    document.getElementById('status').textContent = ok
+      ? 'Plan updated \u2014 ' + fmt(p.n) + ' javelins across ' + fmt(p.worlds) + ' worlds at ' + state.batch + ' per world.'
+      : 'Enter the number of javelins you plan to sell.';
+  }
+
+  /* ---------------- comparison table ---------------- */
+  function renderTable() {
+    const item = DATA[state.item];
+    const plans = BATCHES.map(planFor);
+    const bestGp = plans.reduce((a, b) => (b.total > a.total ? b : a));
+    const bestRate = plans.reduce((a, b) => (b.gph > a.gph ? b : a));
+    const maxTotal = Math.max(...plans.map(p => Math.max(p.total, 0)), 1);
+
+    const sorted = plans.slice().sort((a, b) => {
+      const d = (a[state.sortKey] - b[state.sortKey]) * state.sortDir;
+      return d !== 0 ? d : a.k - b.k;
+    });
+
+    document.getElementById('cmp-body').innerHTML = sorted.map(p => {
+      const badges = [];
+      if (p.k === bestGp.k && p.k === bestRate.k) badges.push('<span class="badge">Best overall</span>');
+      else {
+        if (p.k === bestGp.k) badges.push('<span class="badge">Most total gp</span>');
+        if (p.k === bestRate.k) badges.push('<span class="badge">Best gp/h</span>');
+      }
+      const win = (p.k === bestGp.k || p.k === bestRate.k) ? ' class="win"' : '';
+      const barPct = Math.max(2, (Math.max(p.total, 0) / maxTotal) * 100);
+      return '<tr' + win + '>' +
+        '<td><div class="item-cell"><svg class="ico" aria-hidden="true"><use href="#javelin"/></svg>' +
+          '<div><div>' + p.k + ' ' + item.label.toLowerCase() + 's' + badges.join('') + '</div>' +
+          '<div class="bar"><i style="width:' + barPct.toFixed(1) + '%"></i></div>' +
+          '<div class="bar-label">' + (p.total > 0 ? (p.total / Math.max(bestGp.total, 1) * 100).toFixed(0) + '% of the best total' : 'no margin at this price') + '</div></div></div></td>' +
+        '<td class="num">' + fmt(p.avg) + '</td>' +
+        '<td class="num">' + fmt(p.revWorld) + '</td>' +
+        '<td class="num">' + fmt(p.profitWorld) + '</td>' +
+        '<td class="num">' + fmt(p.worlds) + '</td>' +
+        '<td class="num">' + fmt(p.total) + '</td>' +
+        '<td class="num">' + fmtTime(p.time) + '</td>' +
+        '<td class="num">' + fmt(p.gph) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  /* ---------------- render + events ---------------- */
+  function render() {
+    renderResults();
+    renderTable();
+    drawChart();
+  }
+
+  function num(el, fallback, min, max) {
+    let v = parseFloat(el.value);
+    if (!isFinite(v)) v = fallback;
+    if (min !== undefined) v = Math.max(min, v);
+    if (max !== undefined) v = Math.min(max, v);
+    return v;
+  }
+
+  document.querySelectorAll('.seg button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.item = btn.dataset.item;
+      document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      const item = DATA[state.item];
+      const buyInput = document.getElementById('buy');
+      if (buyInput.value === '57' || buyInput.value === '135') {
+        state.buy = item.ge;
+        buyInput.value = item.ge;
+      }
+      render();
+    });
+  });
+
+  document.getElementById('buy').addEventListener('input', e => {
+    state.buy = num(e.target, 0, 0);
+    render();
+  });
+  document.getElementById('qty').addEventListener('input', e => {
+    state.n = num(e.target, 0, 0);
+    render();
+  });
+  document.getElementById('batch').addEventListener('input', e => {
+    state.batch = parseInt(e.target.value, 10);
+    render();
+  });
+  document.getElementById('change').addEventListener('input', e => {
+    state.change = num(e.target, 0.1, 0, 5);
+    render();
+  });
+  document.getElementById('hop').addEventListener('input', e => {
+    state.hop = num(e.target, 20, 1);
+    render();
+  });
+  document.getElementById('action').addEventListener('input', e => {
+    state.action = num(e.target, 4, 1);
+    render();
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    const item = DATA[state.item];
+    state.buy = item.ge; state.n = 11000; state.batch = 200;
+    state.change = 0.1; state.hop = 20; state.action = 4;
+    document.getElementById('buy').value = item.ge;
+    document.getElementById('qty').value = 11000;
+    document.getElementById('batch').value = 200;
+    document.getElementById('change').value = 0.1;
+    document.getElementById('hop').value = 20;
+    document.getElementById('action').value = 4;
+    render();
+    document.getElementById('status').textContent = 'Defaults restored.';
+  });
+
+  document.querySelectorAll('table.cmp th button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.sort;
+      if (state.sortKey === key) state.sortDir *= -1;
+      else { state.sortKey = key; state.sortDir = 1; }
+      document.querySelectorAll('table.cmp th button span').forEach(s => s.textContent = '');
+      btn.querySelector('span').innerHTML = state.sortDir === 1 ? '&#9650;' : '&#9660;';
+      renderTable();
+      document.getElementById('status').textContent = 'Table sorted by ' + btn.textContent.trim() + '.';
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
