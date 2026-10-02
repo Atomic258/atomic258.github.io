@@ -7,7 +7,49 @@ before hopping, and the total gold you will make from a full run.
 ## What is in here
 
 - `index.html` - the whole site (HTML, CSS and JavaScript in one file, no build step)
+- `runescape_uf.ttf` - the RuneScape font (you add this file; see Fonts below)
 - `README.md` - this file
+
+## Fonts
+
+The site font is **`runescape_uf.ttf`** - your RuneScape bitmap font. Drop the
+file in beside `index.html`, keeping the exact name `runescape_uf.ttf`, and the
+page picks it up automatically through `@font-face` (same origin, no build
+step). It is used for everything: headings, labels, body text, inputs and all
+the numbers.
+
+If the font file is missing or fails to load, the page falls back automatically
+to two open-source Google Fonts (both SIL Open Font License):
+
+- **Silkscreen** - pixel fallback for headings, labels, buttons and badges
+- **Space Mono** - fallback for body text, inputs and numbers
+
+The page also disables synthetic bold (`font-synthesis: none`) so the bitmap
+font stays crisp instead of being smeared into a fake bold.
+
+Note: `runescape_uf.ttf` is a fan-made recreation of the RuneScape font, so it
+is Jagex's intellectual property rather than an open licence. Fine for a
+personal project, but if you would rather not host it publicly, just leave it
+out - the fallback fonts keep the site working.
+
+## If the font does not show up
+
+GitHub Pages only redeploys when the branch changes, so an upload that does not
+change `index.html` can leave the old site live. If the page still looks the
+same after adding the font:
+
+1. Check the build first: repository **Actions** tab, then the **pages build
+   and deployment** run. If it is red, the old site keeps being served until the
+   build passes - re-run it, or read the error log.
+2. Nudge a rebuild: upload `index.html` again (Add files > Upload files >
+   Commit changes). Any commit to `main` triggers a fresh deploy.
+3. Wait one or two minutes, then hard-refresh so the browser drops its cached
+   copy - `Ctrl+Shift+R` on Windows, `Cmd+Shift+R` on Mac.
+
+To confirm the font is really loading, press `F12` for DevTools, open the
+**Network** tab, filter for `ttf`, and reload the page: `runescape_uf.ttf`
+should come back with status `200`. A `404` there means the font file is not
+sitting next to `index.html` in the published root.
 
 ## Run it locally
 
@@ -16,8 +58,9 @@ Double-click `index.html`, or open it in any browser. Nothing to install.
 ## Publish it with GitHub Pages
 
 1. Create a new repository on GitHub (for example `javelin-vendor-flip`).
-2. Upload `index.html` to the root of the repository (or copy and paste the file
-   contents into a new `index.html` on GitHub).
+2. Upload `index.html` and `runescape_uf.ttf` to the root of the repository (or
+   copy and paste `index.html` into a new file of the same name on GitHub).
+   Keep the font file name exactly `runescape_uf.ttf`.
 3. Open the repository **Settings** tab, then **Pages** in the left sidebar.
 4. Under **Build and deployment**, set Source to **Deploy from a branch**.
 5. Choose the `main` branch and the `/(root)` folder, then click **Save**.
